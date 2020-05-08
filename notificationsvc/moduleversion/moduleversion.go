@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 
 	"ui-platform-servers/notificationsvc/utils"
 )
@@ -70,14 +71,24 @@ func GetResolvedDomain(module string, domain string) (string, error) {
 	return resolvedDomain, nil
 }
 
-func LoadDomainMap() {
-	mapFile, err := os.Open("moduledomainmap.json")
-	defer mapFile.Close()
-	byteValue, _ := ioutil.ReadAll(mapFile)
-	if err != nil {
-		utils.PrintInfo(err.Error())
+func LoadDomainMap() error {
+	var basedir string
+	if os.Getenv("ENV") != "" {
+		basedir = "./moduleversion/"
 	}
-	_ = json.Unmarshal([]byte(byteValue), &moduleDomainMap)
+	abspath, err := filepath.Abs(basedir + "moduledomainmap.json")
+	if err == nil {
+		mapFile, err := os.Open(abspath)
+		defer mapFile.Close()
+		byteValue, _ := ioutil.ReadAll(mapFile)
+		if err != nil {
+			utils.PrintInfo(err.Error())
+		}
+		_ = json.Unmarshal([]byte(byteValue), &moduleDomainMap)
+	} else {
+		return err
+	}
+	return nil
 }
 
 func GetModuleDomainMap() ModuleDomainMap {

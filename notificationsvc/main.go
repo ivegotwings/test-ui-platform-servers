@@ -85,7 +85,10 @@ func main() {
 	b, err := json.Marshal(config)
 	utils.PrintInfo("Redis Config: " + string(b))
 	//pre load the map once
-	moduleversion.LoadDomainMap()
+	err = moduleversion.LoadDomainMap()
+	if err != nil {
+		utils.PrintDebug("error loading moduledoaminmap.json " + err.Error())
+	}
 
 	opts := make(map[string]string)
 	opts["host"] = config.Redis.Host
