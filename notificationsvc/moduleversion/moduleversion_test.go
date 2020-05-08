@@ -1,7 +1,6 @@
 package moduleversion
 
 import (
-	"fmt"
 	"io/ioutil"
 	"log"
 	"reflect"
@@ -18,8 +17,6 @@ func TestMODULEVERSION(t *testing.T) {
 		value := v.Field(i).Interface()
 		if len(value.([]string)) == 0 {
 			t.Error("ModuleVersion- Load failed")
-		} else {
-			fmt.Println(len(value.([]string)))
 		}
 	}
 	testDomain := "referenceData"

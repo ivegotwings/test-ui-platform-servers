@@ -5,8 +5,9 @@ import (
 	"os"
 	"sync"
 
+	"ui-platform-servers/notificationsvc/executioncontext"
+
 	socketio "github.com/googollee/go-socket.io"
-	"github.com/ivegotwings/mdm-ui-go/executioncontext"
 )
 
 type SocketWithLock struct {

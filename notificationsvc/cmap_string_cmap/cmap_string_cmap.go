@@ -5,7 +5,7 @@ import (
 	"hash/fnv"
 	"sync"
 
-	"github.com/ivegotwings/mdm-ui-go/cmap_string_socket"
+	"ui-platform-servers/notificationsvc/cmap_string_socket"
 )
 
 var SHARD_COUNT = 32

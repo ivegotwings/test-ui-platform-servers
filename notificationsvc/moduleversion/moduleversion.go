@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/ivegotwings/mdm-ui-go/utils"
+	"ui-platform-servers/notificationsvc/utils"
 )
 
 var MODULE_VERSION_KEY string = "-runtime-module-version"
@@ -83,4 +83,3 @@ func LoadDomainMap() {
 func GetModuleDomainMap() ModuleDomainMap {
 	return moduleDomainMap
 }
-

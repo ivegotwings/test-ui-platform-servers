@@ -5,7 +5,7 @@ import (
 	"hash/fnv"
 	"sync"
 
-	"github.com/ivegotwings/mdm-ui-go/utils"
+	"ui-platform-servers/notificationsvc/utils"
 )
 
 var SHARD_COUNT = 32

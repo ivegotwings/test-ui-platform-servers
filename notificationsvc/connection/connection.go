@@ -3,10 +3,10 @@ package connection
 import (
 	"errors"
 
-	"github.com/ivegotwings/mdm-ui-go/cmap_string_socket"
-	"github.com/ivegotwings/mdm-ui-go/utils"
+	"ui-platform-servers/notificationsvc/cmap_string_socket"
+	"ui-platform-servers/notificationsvc/utils"
 
-	"github.com/ivegotwings/mdm-ui-go/cmap_string_cmap"
+	"ui-platform-servers/notificationsvc/cmap_string_cmap"
 
 	"github.com/garyburd/redigo/redis"
 	socketio "github.com/googollee/go-socket.io"

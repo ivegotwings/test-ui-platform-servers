@@ -10,12 +10,13 @@ import (
 	"strconv"
 	"time"
 
+	"ui-platform-servers/notificationsvc/connection"
+	"ui-platform-servers/notificationsvc/moduleversion"
+	"ui-platform-servers/notificationsvc/notification"
+	"ui-platform-servers/notificationsvc/state"
+	"ui-platform-servers/notificationsvc/utils"
+
 	socketio "github.com/googollee/go-socket.io"
-	"github.com/ivegotwings/mdm-ui-go/connection"
-	"github.com/ivegotwings/mdm-ui-go/moduleversion"
-	"github.com/ivegotwings/mdm-ui-go/notification"
-	"github.com/ivegotwings/mdm-ui-go/state"
-	"github.com/ivegotwings/mdm-ui-go/utils"
 	"go.elastic.co/apm/module/apmhttp"
 )
 

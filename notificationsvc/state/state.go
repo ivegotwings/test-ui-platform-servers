@@ -3,8 +3,9 @@ package state
 import (
 	"errors"
 
+	"ui-platform-servers/notificationsvc/utils"
+
 	"github.com/garyburd/redigo/redis"
-	"github.com/ivegotwings/mdm-ui-go/utils"
 )
 
 var conn redis.Conn

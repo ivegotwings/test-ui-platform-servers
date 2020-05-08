@@ -9,13 +9,14 @@ import (
 	"strconv"
 	"strings"
 
+	"ui-platform-servers/notificationsvc/connection"
+	"ui-platform-servers/notificationsvc/executioncontext"
+	"ui-platform-servers/notificationsvc/moduleversion"
+	"ui-platform-servers/notificationsvc/state"
+	"ui-platform-servers/notificationsvc/typedomain"
+	"ui-platform-servers/notificationsvc/utils"
+
 	"github.com/garyburd/redigo/redis"
-	"github.com/ivegotwings/mdm-ui-go/connection"
-	"github.com/ivegotwings/mdm-ui-go/executioncontext"
-	"github.com/ivegotwings/mdm-ui-go/moduleversion"
-	"github.com/ivegotwings/mdm-ui-go/state"
-	"github.com/ivegotwings/mdm-ui-go/typedomain"
-	"github.com/ivegotwings/mdm-ui-go/utils"
 	"go.elastic.co/apm"
 )
 

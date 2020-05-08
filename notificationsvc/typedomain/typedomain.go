@@ -9,8 +9,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/ivegotwings/mdm-ui-go/executioncontext"
-	"github.com/ivegotwings/mdm-ui-go/utils"
+	"ui-platform-servers/notificationsvc/executioncontext"
+	"ui-platform-servers/notificationsvc/utils"
 )
 
 // {

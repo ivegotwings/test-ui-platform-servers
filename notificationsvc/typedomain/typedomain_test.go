@@ -5,7 +5,7 @@ import (
 	"log"
 	"testing"
 
-	"github.com/ivegotwings/mdm-ui-go/executioncontext"
+	"ui-platform-servers/notificationsvc/executioncontext"
 )
 
 func TestTYPEDOMAIN(t *testing.T) {
