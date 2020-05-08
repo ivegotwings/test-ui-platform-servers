@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -41,7 +42,9 @@ func LoadConfiguration(file string) Config {
 
 func baseRouter(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Server", "A Go Web Server")
-	w.WriteHeader(200)
+	w.Header().Set("Content-Type", "text/plain")
+	fmt.Fprintf(w, "OK")
+	w.WriteHeader(http.StatusOK)
 }
 
 var redisBroadCastAdaptor connection.Broadcast
