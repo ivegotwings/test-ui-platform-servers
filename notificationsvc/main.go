@@ -141,7 +141,7 @@ func main() {
 					utils.PrintInfo("Redis BroadCastManager- Failure to connect: " + err.Error())
 				} else {
 					utils.PrintInfo("adding new user to rooms: " + user_room + tenant_room)
-					redisBroadCastAdaptor.Send(nil, user_room, "event:message", _userInfo)
+					so.Emit("event:message", _userInfo)
 				}
 			}
 		}
