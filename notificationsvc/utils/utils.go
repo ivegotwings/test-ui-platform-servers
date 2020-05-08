@@ -34,7 +34,7 @@ func PrintDebug(format string, messagef ...interface{}) {
 
 func PrintInfo(message string) {
 	var v []interface{}
-	Println("info", "", "", "", message, "%s", v)
+	Println("info", "", message, "%s", v)
 }
 
 func SetExecutionContext(context executioncontext.Context) {

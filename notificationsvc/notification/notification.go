@@ -3,6 +3,7 @@ package notification
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -198,7 +199,7 @@ var actions = map[string]int{
 }
 
 var dataIndexMapping = map[string]string{
-	"entitymanageService":        "entityData",
+	"entitymanageservice":        "entityData",
 	"entitygovernservice":        "entityData",
 	"entitymanagemodelservice":   "entityModel",
 	"configurationmanageservice": "config",
@@ -247,14 +248,14 @@ func (notificationHandler *NotificationHandler) Notify(w http.ResponseWriter, r 
 	go processNotification(body, executionContext)
 }
 
-func processNotification(body []byte, context executioncontext.Context) error {
+func processNotification(body []byte, context executioncontext.Context) {
 	tx := apm.DefaultTracer.StartTransaction("goroutine:processNotification", "goroutine")
 	var _message Notification
 	err := json.Unmarshal(body, &_message)
 	// defer span.End()
 	if err != nil {
 		utils.PrintInfo("notify error in processing body: " + err.Error())
-		return err
+		utils.PrintInfo(err.Error())
 	} else {
 		utils.PrintDebug("NotificationObject- %v\n", _message.NotificationObject)
 		tenantId := _message.TenantId
@@ -268,17 +269,20 @@ func processNotification(body []byte, context executioncontext.Context) error {
 				if ok := utils.Contains(clientIdNotificationExlusionList, clientId); ok {
 					utils.PrintInfo("Ignoring notification for clientId: " + clientId)
 				}
-				sendNotification(_message.NotificationObject, tenantId, context, tx)
+				err := sendNotification(_message.NotificationObject, tenantId, context, tx)
+				if err != nil {
+					utils.PrintInfo(err.Error())
+				}
 			} else {
 				err = errors.New("Notify- missing clientId")
-				return err
+				fmt.Println(err)
+				utils.PrintInfo(err.Error())
 			}
 		} else {
 			err = errors.New("Notify- tenantId or userId not found")
-			return err
+			utils.PrintInfo(err.Error())
 		}
 	}
-	return nil
 }
 
 func sendNotification(notificationObject NotificationObject, tenantId string, context executioncontext.Context, tx *apm.Transaction) error {
