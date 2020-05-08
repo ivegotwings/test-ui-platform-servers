@@ -3,7 +3,6 @@ package notification
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -241,22 +240,8 @@ func (notificationHandler *NotificationHandler) Notify(w http.ResponseWriter, r 
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 		return
 	}
-	var response interface{}
-	err := json.Unmarshal([]byte(`{
-			"dataObjectOperationResponse": {
-				"status": "success"
-			}
-			}`), &response)
-	if err == nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.Header().Set("Server", "mdm-ui-go-notification")
-		json.NewEncoder(w).Encode(response)
-		w.WriteHeader(http.StatusOK)
-	} else {
-		fmt.Fprint(w, "Notification processsed but problem sending success status")
-		w.Header().Set("Server", "mdm-ui-go-notification")
-		w.WriteHeader(http.StatusOK)
-	}
+	w.Header().Set("Server", "mdm-ui-go-notification")
+	w.WriteHeader(http.StatusOK)
 	executionContext := executioncontext.GetContext(r)
 	utils.SetExecutionContext(executionContext)
 	go processNotification(body, executionContext)
