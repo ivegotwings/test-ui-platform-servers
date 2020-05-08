@@ -1,5 +1,5 @@
 
-var SOCKETS = 10;
+var SOCKETS = 100;
 
 //go
 let countGo = 0;
@@ -7,26 +7,33 @@ let sockets = []
 function gosockets() {
     var ioClient = require('socket.io-client')
     for (let i = 0; i < SOCKETS; i++) {
-        let socket = ioClient.connect('http://localhost:5007');
-        socket.once('connect', function (args) {
-            console.log("connect go")
+        let socket = ioClient.connect('http://localhost:5007', {
+            reconnection: true,
+            autoConnect: true,
+            reconnectionDelayMax: 1000,
+            reconnectionAttempts: Infinity,
+            transports: ["websocket", "polling"]
         });
-        socket.on('event:notification', function (data) {
-            console.log("event:notification #" + i, ++countGo, data)
-        });
+        ((socket, i) => {
+            socket.once('connect', function (args) {
+                console.log("connect go")
+            });
+            socket.on('event:notification', function (data) {
+                console.log("event:notification #" + i, ++countGo)
+            });
 
-        socket.on('event:message', function (data) {
-            console.log("event:message #" + i, data)
-        });
-        socket.on('disconnect', function () { });
+            socket.on('event:message', function (data) {
+                console.log("event:message #" + i, data)
+            });
+            socket.on('disconnect', function () { });
+        })(socket, i)
         sockets.push(socket)
     }
     setTimeout(() => {
         sockets.forEach((socket) => {
-            console.log("emit")
             socket.emit("event:adduser", JSON.stringify({ userId: "rdwadmin@riversand.com_user", tenantId: "rdwengg-az-dev2" }))
         })
-    }, 100)
+    }, 1000)
 }
 
 let countNode = 0
