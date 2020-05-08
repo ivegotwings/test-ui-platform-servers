@@ -81,24 +81,6 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:a186bfd1d29b6a7d2d1264f958f3220cef096e8de51ec4f22e3d73aeb738eb14"
-  name = "github.com/ivegotwings/mdm-ui-go"
-  packages = [
-    "cmap_string_cmap",
-    "cmap_string_socket",
-    "connection",
-    "executioncontext",
-    "moduleversion",
-    "notification",
-    "state",
-    "typedomain",
-    "utils",
-  ]
-  pruneopts = "UT"
-  revision = "c60dfa830b8dd263d5d0a7985c983e5217297024"
-
-[[projects]]
-  branch = "master"
   digest = "1:ca41e6bafdc8d60c47dba38e9adfc75219a2892b09e5c2160161e7b6bf9562c2"
   name = "github.com/joeshaw/multierror"
   packages = ["."]
@@ -203,15 +185,6 @@
   input-imports = [
     "github.com/garyburd/redigo/redis",
     "github.com/googollee/go-socket.io",
-    "github.com/ivegotwings/mdm-ui-go/cmap_string_cmap",
-    "github.com/ivegotwings/mdm-ui-go/cmap_string_socket",
-    "github.com/ivegotwings/mdm-ui-go/connection",
-    "github.com/ivegotwings/mdm-ui-go/executioncontext",
-    "github.com/ivegotwings/mdm-ui-go/moduleversion",
-    "github.com/ivegotwings/mdm-ui-go/notification",
-    "github.com/ivegotwings/mdm-ui-go/state",
-    "github.com/ivegotwings/mdm-ui-go/typedomain",
-    "github.com/ivegotwings/mdm-ui-go/utils",
     "github.com/nu7hatch/gouuid",
     "go.elastic.co/apm",
     "go.elastic.co/apm/module/apmhttp",
