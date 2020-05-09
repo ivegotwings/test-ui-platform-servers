@@ -219,7 +219,7 @@ func (b Broadcast) SendSocket(ignore socketio.Conn, room, message string, args .
 				defer _socket.Unlock()
 				defer func() {
 					if err := recover(); err != nil {
-						utils.Println("panic", "", "connection.go", "", "panic: "+err.(string), "", nil)
+						utils.PrintError(err.(string))
 					}
 				}()
 			}()
