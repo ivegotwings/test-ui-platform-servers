@@ -213,15 +213,15 @@ func (b Broadcast) SendSocket(ignore socketio.Conn, room, message string, args .
 			}
 
 			go func() {
-				s := *_socket.Socket
-				_socket.Lock()
-				s.Emit(message, args...)
-				defer _socket.Unlock()
 				defer func() {
 					if err := recover(); err != nil {
 						utils.PrintError(err.(string))
 					}
 				}()
+				s := *_socket.Socket
+				_socket.Lock()
+				s.Emit(message, args...)
+				defer _socket.Unlock()
 			}()
 		}
 	} else {

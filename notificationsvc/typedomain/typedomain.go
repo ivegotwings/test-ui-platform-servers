@@ -334,12 +334,12 @@ func InitializeEntityTypeDomainMap(context executioncontext.Context) (map[string
 			}
 
 		}
-		defer resp.Body.Close()
 		defer func() {
 			if err := recover(); err != nil {
 				utils.PrintError(err.(string))
 			}
 		}()
+		defer resp.Body.Close()
 	}
 	utils.PrintDebug("inittypedomaintenantmap response %+v\n", entityTypeDomainLookUp)
 	return entityTypeDomainLookUp, nil
@@ -414,12 +414,12 @@ func GetDomainForEntityType(entityType string, context executioncontext.Context)
 						}
 					}
 				}
-				defer resp.Body.Close()
 				defer func() {
 					if err := recover(); err != nil {
 						utils.PrintError(err.(string))
 					}
 				}()
+				defer resp.Body.Close()
 			}
 		}
 	}
