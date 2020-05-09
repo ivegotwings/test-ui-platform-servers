@@ -27,6 +27,7 @@ let socket6 = ioClient.connect('http://localhost:5007');
 let socket7 = ioClient.connect('http://localhost:5007');
 let socket8 = ioClient.connect('http://localhost:5007');
 let socket9 = ioClient.connect('http://localhost:5007');
+let socket10 = ioClient.connect('http://localhost:5007');
 
 
 tags("notificationsvc", "socket")
@@ -339,12 +340,42 @@ tags("notificationsvc", "socket")
                     chai.assert(data.operation == "MODEL_EXPORT", "model_export_failed property- operation")
                     chai.assert(data.dataIndex == "entityData", "model_export_failed property- dataIndex")
                     chai.assert(data.action == 19, "model_export_failed property- action")
-                    chai.assert(data.taskType == "transitionWorkflow-multi-query", "model_export_failed property- action")
                     done(); once = false
                 }
             });
             socket9.on('event:message', function (data) {
                 let payload = require("../testdata/model_export.json")
+                chai.request(app)
+                    .post('/api/notify')
+                    .set('Content-Type', 'application/json')
+                    .send(payload)
+                    .end(function (err, res) { })
+            });
+        })
+        it('entity_export socket should receive valid data', (done) => {
+            let once = true; socket8.on('disconnect', function () { });
+            setTimeout(() => {
+                socket10.emit("event:adduser", JSON.stringify({ userId: "rdwadmin@riversand.com_user", tenantId: "rdwengg-az-dev2" }))
+            }, 10)
+
+            socket10.once('connect', async function (args) {
+                //console.log("connect")
+            });
+
+            socket10.on('event:notification', function (data) {
+                if (once) {
+                    chai.assert(data != undefined, "failed to receive socket connection response")
+                    //chai.assert(data.description == "System Manage Complete", "entity_export_failed property- description")
+                    chai.assert(data.status == "success", "entity_export_failed property- status")
+                    chai.assert(data.requestStatus == "Completed", "entity_export_failed property- requestStatus")
+                    chai.assert(data.operation == "ENTITY_EXPORT", "entity_export_failed property- operation")
+                    chai.assert(data.dataIndex == "entityData", "entity_export_failed property- dataIndex")
+                    chai.assert(data.action == 19, "entity_export_failed property- action")
+                    done(); once = false
+                }
+            });
+            socket10.on('event:message', function (data) {
+                let payload = require("../testdata/entity_export.json")
                 chai.request(app)
                     .post('/api/notify')
                     .set('Content-Type', 'application/json')
