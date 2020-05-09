@@ -81,7 +81,7 @@ func main() {
 		log.Fatal(err)
 	}
 	var configfilename string = "config_" + os.Getenv("ENV") + ".json"
-	utils.PrintDebug("redis config file- %$ " + configfilename)
+	utils.PrintDebug("redis config file" + configfilename)
 	var config Config = LoadConfiguration(configfilename)
 	b, err := json.Marshal(config)
 	utils.PrintInfo("Redis Config: " + string(b))

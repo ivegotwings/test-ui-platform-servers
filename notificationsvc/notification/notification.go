@@ -473,18 +473,24 @@ func NotificationScheduler(ticker *time.Ticker, quit chan struct{}) {
 					version, err := redis.Int(conn.Do("GET", payload.VersionKey))
 					//conn.Flush()
 					//version, err := conn.Receive()
-					if err == nil {
-						var newversion uint8
+					if err != nil {
+						utils.PrintDebug("Version Key " + payload.VersionKey + "value not found " + err.Error())
+						conn.Send("SET", payload.VersionKey, moduleversion.DEFAULT_VERSION)
+						conn.Flush()
+						version = int(moduleversion.DEFAULT_VERSION)
+					}
+					if version != 0 {
 						utils.PrintDebug("MotificationScheduler versionKey version %s %s", payload.VersionKey, version)
-						if version != 0 {
-							_version := uint8(version)
-							newversion = _version + 1
-						} else {
-							newversion = moduleversion.DEFAULT_VERSION
-						}
+						var newversion uint8
+						_version := uint8(version)
+						newversion = _version + 1
 						conn.Send("SET", payload.VersionKey, newversion)
 						conn.Flush()
+					} else {
+						//error
+						utils.PrintDebug("Version Key " + payload.VersionKey + "has invalid value- " + strconv.Itoa(version))
 					}
+
 				}
 				span.End()
 				_span := tx.StartSpan("socket.io", "function", nil)
