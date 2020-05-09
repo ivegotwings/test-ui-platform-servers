@@ -26,6 +26,7 @@ type Config struct {
 		Host string
 		Port string
 	}
+	NotificationInterval uint
 }
 
 func LoadConfiguration(file string) Config {
@@ -76,18 +77,18 @@ func main() {
 	utils.PrintInfo("GOMAXPROCS: " + strconv.Itoa(runtime.GOMAXPROCS(0)))
 	server, err := socketio.NewServer(nil)
 	if err != nil {
-		utils.PrintInfo("Failed to create socket server: " + err.Error())
+		utils.PrintError("Failed to create socket server: " + err.Error())
 		log.Fatal(err)
 	}
 	var configfilename string = "config_" + os.Getenv("ENV") + ".json"
-	utils.PrintDebug("redis config file- %$", configfilename)
+	utils.PrintDebug("redis config file- %$ " + configfilename)
 	var config Config = LoadConfiguration(configfilename)
 	b, err := json.Marshal(config)
 	utils.PrintInfo("Redis Config: " + string(b))
 	//pre load the map once
 	err = moduleversion.LoadDomainMap()
 	if err != nil {
-		utils.PrintDebug("error loading moduledoaminmap.json " + err.Error())
+		utils.PrintError("error loading moduledoaminmap.json " + err.Error())
 	}
 
 	opts := make(map[string]string)
@@ -101,7 +102,7 @@ func main() {
 		//pm2io.Notifier.Error(err)
 		panic(err)
 	}
-	notification.SetRedisBroadCastAdaptor(&redisBroadCastAdaptor)
+	notification.SetRedisBroadCastAdaptor(&redisBroadCastAdaptor, config.NotificationInterval)
 
 	server.OnConnect("", func(so socketio.Conn) error {
 		so.SetContext("")
@@ -120,14 +121,14 @@ func main() {
 	})
 
 	server.OnError("error", func(so socketio.Conn, err error) {
-		utils.PrintInfo("error: " + err.Error())
+		utils.PrintError("error: " + err.Error())
 	})
 
 	server.OnEvent("/", "event:adduser", func(so socketio.Conn, msg string) {
 		var _userInfo interface{}
 		err := json.Unmarshal([]byte(msg), &_userInfo)
 		if err != nil {
-			utils.PrintInfo("error processing event:adduser")
+			utils.PrintError("error processing event:adduser")
 		} else {
 			userInfo, ok := _userInfo.(map[string]interface{})
 			if ok {

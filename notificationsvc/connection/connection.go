@@ -93,7 +93,7 @@ func Redis(opts map[string]string) *Broadcast {
 					return
 				}
 			case error:
-				utils.PrintDebug("error: %v\n", n)
+				utils.PrintError("error: %v\n " + n.Error())
 				return
 			}
 		}
@@ -107,14 +107,14 @@ func (b Broadcast) onmessage(channel string, data []byte) error {
 	//pieces := strings.Split(channel, "#")
 	//uid := pieces[len(pieces)-1]
 	// if b.uid == uid && b.uid != "1" {
-	// 	utils.PrintInfo("ignore same uid")
+	// 	utils.PrintError("ignore same uid")
 	// 	return nil
 	// }
 
 	var out map[string][]interface{}
 	err := json.Unmarshal(data, &out)
 	if err != nil {
-		utils.PrintInfo("error decoding data")
+		utils.PrintError("error decoding data")
 		return nil
 	}
 
@@ -225,7 +225,7 @@ func (b Broadcast) SendSocket(ignore socketio.Conn, room, message string, args .
 			}()
 		}
 	} else {
-		utils.PrintInfo("error sending message to room: " + room)
+		utils.PrintError("error sending message to room: " + room)
 	}
 	return nil
 }

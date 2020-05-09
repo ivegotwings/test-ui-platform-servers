@@ -3,10 +3,12 @@ package notification
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"ui-platform-servers/notificationsvc/connection"
 	"ui-platform-servers/notificationsvc/executioncontext"
@@ -221,10 +223,11 @@ type NotificationPayload struct {
 
 var NotificationPayloadChannel = make(chan NotificationPayload)
 
-func SetRedisBroadCastAdaptor(adaptor *connection.Broadcast) {
+func SetRedisBroadCastAdaptor(adaptor *connection.Broadcast, interval uint) {
 	redisBroadCastAdaptor = adaptor
 	var quit = make(chan struct{})
-	go NotificationScheduler(quit)
+	var ticker *time.Ticker = time.NewTicker(time.Duration(interval) * time.Millisecond)
+	go NotificationScheduler(ticker, quit)
 
 }
 
@@ -254,8 +257,8 @@ func processNotification(body []byte, context executioncontext.Context) {
 	err := json.Unmarshal(body, &_message)
 	// defer span.End()
 	if err != nil {
-		utils.PrintInfo("notify error in processing body: " + err.Error())
-		utils.PrintInfo(err.Error())
+		utils.PrintError("notify error in processing body: " + err.Error())
+		utils.PrintError(err.Error())
 	} else {
 		utils.PrintDebug("NotificationObject- %v\n", _message.NotificationObject)
 		tenantId := _message.TenantId
@@ -266,16 +269,18 @@ func processNotification(body []byte, context executioncontext.Context) {
 				clientId = _message.NotificationObject.Data.Attributes.ClientId.Values[0].Value
 			}
 			if ok := utils.Contains(clientIdNotificationExlusionList, clientId); ok {
-				utils.PrintInfo("Ignoring notification for clientId: " + clientId)
+				utils.PrintError("Ignoring notification for clientId: " + clientId)
 			}
 			err := sendNotification(_message.NotificationObject, tenantId, context, tx)
 			if err != nil {
-				utils.PrintInfo(err.Error())
+				fmt.Println("****", err)
+
+				utils.PrintError(err.Error())
 			}
 
 		} else {
 			err = errors.New("Notify- tenantId and userId not found")
-			utils.PrintInfo(err.Error())
+			utils.PrintError(err.Error())
 		}
 	}
 }
@@ -286,7 +291,7 @@ func sendNotification(notificationObject NotificationObject, tenantId string, co
 	err := prepareNotificationObject(&userNotificationInfo, notificationObject)
 	span.End()
 	if err != nil {
-		utils.PrintInfo("sendNotification- error in pepareNotificationObject " + err.Error())
+		utils.PrintError("sendNotification- error in pepareNotificationObject " + err.Error())
 		return err
 	} else {
 		if userNotificationInfo.UserId == "" && userNotificationInfo.RequestStatus == "error" {
@@ -454,45 +459,47 @@ func prepareNotificationObject(userNotificationInfo *UserNotificationInfo, notif
 	return err
 }
 
-func NotificationScheduler(quit chan struct{}) {
+func NotificationScheduler(ticker *time.Ticker, quit chan struct{}) {
 	for {
 		select {
-		case payload := <-NotificationPayloadChannel:
-			tx := apm.DefaultTracer.StartTransaction("goroutine:socketpayload", "goroutine")
-			span := tx.StartSpan("versionkey update", "function", nil)
-			var uniqueVersionKeys = map[string]string{}
-			if uniqueVersionKeys[payload.VersionKey] != "done" {
-				uniqueVersionKeys[payload.VersionKey] = "done"
-				conn := *state.Conn()
-				version, err := redis.Int(conn.Do("GET", payload.VersionKey))
-				//conn.Flush()
-				//version, err := conn.Receive()
-				if err == nil {
-					var newversion uint8
-					utils.PrintDebug("MotificationScheduler versionKey version %s %s", payload.VersionKey, version)
-					if version != 0 {
-						_version := uint8(version)
-						newversion = _version + 1
-					} else {
-						newversion = moduleversion.DEFAULT_VERSION
+		case <-ticker.C:
+			for payload := range NotificationPayloadChannel {
+				tx := apm.DefaultTracer.StartTransaction("goroutine:socketpayload", "goroutine")
+				span := tx.StartSpan("versionkey update", "function", nil)
+				var uniqueVersionKeys = map[string]string{}
+				if uniqueVersionKeys[payload.VersionKey] != "done" {
+					uniqueVersionKeys[payload.VersionKey] = "done"
+					conn := *state.Conn()
+					version, err := redis.Int(conn.Do("GET", payload.VersionKey))
+					//conn.Flush()
+					//version, err := conn.Receive()
+					if err == nil {
+						var newversion uint8
+						utils.PrintDebug("MotificationScheduler versionKey version %s %s", payload.VersionKey, version)
+						if version != 0 {
+							_version := uint8(version)
+							newversion = _version + 1
+						} else {
+							newversion = moduleversion.DEFAULT_VERSION
+						}
+						conn.Send("SET", payload.VersionKey, newversion)
+						conn.Flush()
 					}
-					conn.Send("SET", payload.VersionKey, newversion)
-					conn.Flush()
 				}
+				span.End()
+				_span := tx.StartSpan("socket.io", "function", nil)
+				var room string
+				if payload.UserInfo["tenantId"] != "" && payload.UserInfo["userId"] != "" {
+					room = "socket_conn_room_tenant_" + payload.UserInfo["tenantId"] + "_user_" + payload.UserInfo["userId"]
+					utils.PrintDebug("Broadcasting to room: $s", room)
+					redisBroadCastAdaptor.Send(nil, room, "event:notification", payload.UserNotificationInfo)
+				} else if payload.UserInfo["tenantId"] != "" {
+					room = "socket_conn_room_tenant_" + payload.UserInfo["tenantId"]
+					redisBroadCastAdaptor.Send(nil, room, "event:notification", payload.UserNotificationInfo)
+				}
+				_span.End()
+				tx.End()
 			}
-			span.End()
-			_span := tx.StartSpan("socket.io", "function", nil)
-			var room string
-			if payload.UserInfo["tenantId"] != "" && payload.UserInfo["userId"] != "" {
-				room = "socket_conn_room_tenant_" + payload.UserInfo["tenantId"] + "_user_" + payload.UserInfo["userId"]
-				utils.PrintDebug("Broadcasting to room: $s", room)
-				redisBroadCastAdaptor.Send(nil, room, "event:notification", payload.UserNotificationInfo)
-			} else if payload.UserInfo["tenantId"] != "" {
-				room = "socket_conn_room_tenant_" + payload.UserInfo["tenantId"]
-				redisBroadCastAdaptor.Send(nil, room, "event:notification", payload.UserNotificationInfo)
-			}
-			_span.End()
-			tx.End()
 		case <-quit:
 			return
 		}

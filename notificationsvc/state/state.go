@@ -25,7 +25,7 @@ func Connect(opts map[string]string) error {
 	conn, err = redis.Dial("tcp", host+":"+port)
 
 	if err != nil {
-		utils.PrintInfo("state- unable to connect to redis")
+		utils.PrintError("state- unable to connect to redis")
 		return errors.New("state- unable to connect to redis")
 	}
 	return nil

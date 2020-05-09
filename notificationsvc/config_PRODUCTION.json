@@ -2,5 +2,6 @@
   "Redis": {
     "Host": "redis-master",
     "Port": "6379"
-  }
+  },
+  "NotificationInterval": 500
 }

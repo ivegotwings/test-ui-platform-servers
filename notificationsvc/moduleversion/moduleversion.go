@@ -82,7 +82,7 @@ func LoadDomainMap() error {
 		defer mapFile.Close()
 		byteValue, _ := ioutil.ReadAll(mapFile)
 		if err != nil {
-			utils.PrintInfo(err.Error())
+			utils.PrintError(err.Error())
 		}
 		_ = json.Unmarshal([]byte(byteValue), &moduleDomainMap)
 	} else {

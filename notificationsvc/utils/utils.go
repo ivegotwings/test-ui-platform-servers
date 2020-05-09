@@ -29,6 +29,11 @@ func Contains(arr []string, str string) bool {
 	return false
 }
 
+func PrintError(message string) {
+	var v []interface{}
+	Println("error", "", message, "%s", v)
+}
+
 func PrintDebug(format string, messagef ...interface{}) {
 	if os.Getenv("LOG_LEVEL") == "DEBUG" {
 		Println("debug", "", "", format, messagef...)
@@ -58,6 +63,10 @@ func Println(loglevel string, calleeServiceName string, message string, format s
 		break
 	case "fatal":
 		log.Fatal(messageTemplate)
+		break
+	case "error":
+		log.Println(messageTemplate)
+		break
 	case "info":
 		log.Println(messageTemplate)
 		break

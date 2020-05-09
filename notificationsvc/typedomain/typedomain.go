@@ -361,7 +361,7 @@ func GetDomainForEntityType(entityType string, context executioncontext.Context)
 		}
 		if lookUpValue == "" {
 			//post call
-			utils.PrintDebug("No type domain lookup value found for entityType " + entityType + "_entityType")
+			utils.PrintDebug("Starting Get- No type domain lookup value found for entityType " + entityType + "_entityType")
 
 			var requestBody []byte = []byte(`{"params":{"query":{"ids":["` + entityType + `_entityType"],"filters":{"typesCriterion":["entityType"]}},"fields": {"attributes": ["_ALL"],"relationships": ["_ALL"]}}}`)
 			req, err := http.NewRequest("POST", "http://"+context.Host+"/"+context.TenantId+"/api/entitymodelservice/get", bytes.NewBuffer(requestBody))
