@@ -98,7 +98,7 @@
               "id": "deeace00-6ef6-4e10-bcb4-f422bcfb6463",
               "locale": "en-US",
               "source": "internal",
-              "value": ""
+              "value": "transitionWorkflow-multi-query"
             }
           ]
         },
@@ -131,7 +131,7 @@
       },
       "jsonData": {
         "clientState": {
-          "emulatedSyncDownload": false,
+          "emulatedSyncDownload": true,
           "notificationInfo": {
             "showNotificationToUser": true,
             "actionType": "addContext",

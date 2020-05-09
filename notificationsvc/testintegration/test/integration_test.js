@@ -332,14 +332,14 @@ tags("notificationsvc", "socket")
 
             socket9.on('event:notification', function (data) {
                 if (once) {
-                    console.log(data)
                     chai.assert(data != undefined, "failed to receive socket connection response")
                     //chai.assert(data.description == "System Manage Complete", "model_export_failed property- description")
                     chai.assert(data.status == "success", "model_export_failed property- status")
                     chai.assert(data.requestStatus == "Completed", "model_export_failed property- requestStatus")
                     chai.assert(data.operation == "MODEL_EXPORT", "model_export_failed property- operation")
                     chai.assert(data.dataIndex == "entityData", "model_export_failed property- dataIndex")
-                    chai.assert(data.action == 11, "model_export_failed property- action")
+                    chai.assert(data.action == 19, "model_export_failed property- action")
+                    chai.assert(data.taskType == "transitionWorkflow-multi-query", "model_export_failed property- action")
                     done(); once = false
                 }
             });
