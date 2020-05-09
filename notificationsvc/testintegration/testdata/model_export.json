@@ -1,0 +1,170 @@
+{
+  "domain": "notificationDataObject",
+  "notificationObject": {
+    "data": {
+      "attributes": {
+        "clientId": {
+          "values": [
+            {
+              "id": "b0235bbb-d34e-407e-a00d-31075341f1f6",
+              "locale": "en-US",
+              "source": "internal",
+              "value": "guid"
+            }
+          ]
+        },
+        "connectIntegrationType": {
+          "values": [
+            {
+              "id": "0d8ac1bb-9093-4e83-96c5-52f8837c91e1",
+              "locale": "en-US",
+              "source": "internal",
+              "value": "MODEL_EXPORT"
+            }
+          ]
+        },
+        "relatedRequestId": {
+          "values": [
+            {
+              "id": "660a1c8f-2328-4553-9ea6-b09154da0cf5",
+              "locale": "en-US",
+              "source": "internal",
+              "value": "ceb62795-46c9-4138-b53e-9f491756a204"
+            }
+          ]
+        },
+        "requestGroupId": {
+          "values": [
+            {
+              "id": "cd221fbc-d937-4796-a64e-9eefdddb6216",
+              "locale": "en-US",
+              "source": "internal"
+            }
+          ]
+        },
+        "requestId": {
+          "values": [
+            {
+              "id": "fcbaff54-2545-4ac3-8fc3-73b91ab21c29",
+              "locale": "en-US",
+              "source": "internal",
+              "value": "ceb62795-46c9-4138-b53e-9f491756a204"
+            }
+          ]
+        },
+        "requestStatus": {
+          "values": [
+            {
+              "id": "acf02d09-f894-4a45-aaa8-9ea8da79e370",
+              "locale": "en-US",
+              "source": "internal",
+              "value": "Completed"
+            }
+          ]
+        },
+        "requestTimestamp": {
+          "values": [
+            {
+              "id": "fcbec19f-a352-44e9-b01e-1940efd7d38d",
+              "locale": "en-US",
+              "source": "internal",
+              "value": 1588086519202
+            }
+          ]
+        },
+        "serviceName": {
+          "values": [
+            {
+              "id": "bd873000-6b72-4168-8b1d-14e48bed7100",
+              "locale": "en-US",
+              "source": "internal",
+              "value": ""
+            }
+          ]
+        },
+        "taskId": {
+          "values": [
+            {
+              "id": "6efe0cf1-5f0d-4886-8d7f-e76fa5d4fb5d",
+              "locale": "en-US",
+              "source": "internal",
+              "value": "ba8d3752-5e8c-433e-bc98-1d64193888fb"
+            }
+          ]
+        },
+        "taskType": {
+          "values": [
+            {
+              "id": "deeace00-6ef6-4e10-bcb4-f422bcfb6463",
+              "locale": "en-US",
+              "source": "internal",
+              "value": ""
+            }
+          ]
+        },
+        "userId": {
+          "values": [
+            {
+              "id": "f8d2343e-2ff2-41cf-920a-1f273489db8c",
+              "locale": "en-US",
+              "source": "internal",
+              "value": "rdwadmin@riversadmin.com"
+            }
+          ]
+        },
+        "entityId": {
+          "values": [
+            {
+              "source": "sources/rdp",
+              "value": "ersgi6whO7jv0G3"
+            }
+          ]
+        },
+        "entityType": {
+          "values": [
+            {
+              "source": "sources/rdp",
+              "value": ""
+            }
+          ]
+        }
+      },
+      "jsonData": {
+        "clientState": {
+          "emulatedSyncDownload": false,
+          "notificationInfo": {
+            "showNotificationToUser": true,
+            "actionType": "addContext",
+            "context": {
+              "appInstanceId": "app-entity-manage-component-rs54p0nx9ZxECmnz5x",
+              "id": "ersgi6whO7jv0G",
+              "type": "",
+              "dataIndex": "entityData"
+            },
+            "id": "JUM4h6OrSO-Cul6YnIcvSw",
+            "timeStamp": "2017-06-15T08:46:29.689Z",
+            "source": "ui",
+            "userId": "rdwadmin@riversand.com_user",
+            "connectionId": "",
+            "operation": ""
+          }
+        }
+      }
+    },
+    "domain": "notificationDataObject",
+    "id": "768d2207-279b-4e2b-952b-1dfd990d73d4",
+    "properties": {
+      "createdBy": "system_user",
+      "createdDate": "2020-04-28T09:08:39.202-0600",
+      "createdService": "notificationManageService",
+      "modifiedBy": "system_user",
+      "modifiedDate": "2020-04-28T09:08:39.202-0600",
+      "modifiedService": "notificationManageService"
+    },
+    "type": "notificationObject"
+  },
+  "params": {},
+  "returnRequest": false,
+  "serviceName": "entitygovernservice",
+  "tenantId": "rdwengg-az-dev2"
+}

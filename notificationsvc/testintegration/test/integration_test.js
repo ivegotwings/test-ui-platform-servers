@@ -26,6 +26,7 @@ let socket5 = ioClient.connect('http://localhost:5007');
 let socket6 = ioClient.connect('http://localhost:5007');
 let socket7 = ioClient.connect('http://localhost:5007');
 let socket8 = ioClient.connect('http://localhost:5007');
+let socket9 = ioClient.connect('http://localhost:5007');
 
 
 tags("notificationsvc", "socket")
@@ -289,8 +290,7 @@ tags("notificationsvc", "socket")
             });
         })
         it('config_save socket should receive valid data', (done) => {
-            let once = true;
-            socket8.on('disconnect', function () { });
+            let once = true; socket8.on('disconnect', function () { });
             setTimeout(() => {
                 socket8.emit("event:adduser", JSON.stringify({ userId: "rdwadmin@riversand.com_user", tenantId: "rdwengg-az-dev2" }))
             }, 10)
@@ -308,12 +308,43 @@ tags("notificationsvc", "socket")
                     chai.assert(data.operation == "", "config_save_failed property- operation")
                     chai.assert(data.dataIndex == "config", "config_save_failed property- dataIndex")
                     chai.assert(data.action == 22, "config_save_failed property- action")
-                    done();
-                    once = false
+                    done(); once = false
                 }
             });
             socket8.on('event:message', function (data) {
                 let payload = require("../testdata/config_save.json")
+                chai.request(app)
+                    .post('/api/notify')
+                    .set('Content-Type', 'application/json')
+                    .send(payload)
+                    .end(function (err, res) { })
+            });
+        })
+        it('model_export socket should receive valid data', (done) => {
+            let once = true; socket8.on('disconnect', function () { });
+            setTimeout(() => {
+                socket9.emit("event:adduser", JSON.stringify({ userId: "rdwadmin@riversand.com_user", tenantId: "rdwengg-az-dev2" }))
+            }, 10)
+
+            socket9.once('connect', async function (args) {
+                //console.log("connect")
+            });
+
+            socket9.on('event:notification', function (data) {
+                if (once) {
+                    console.log(data)
+                    chai.assert(data != undefined, "failed to receive socket connection response")
+                    //chai.assert(data.description == "System Manage Complete", "model_export_failed property- description")
+                    chai.assert(data.status == "success", "model_export_failed property- status")
+                    chai.assert(data.requestStatus == "Completed", "model_export_failed property- requestStatus")
+                    chai.assert(data.operation == "MODEL_EXPORT", "model_export_failed property- operation")
+                    chai.assert(data.dataIndex == "entityData", "model_export_failed property- dataIndex")
+                    chai.assert(data.action == 11, "model_export_failed property- action")
+                    done(); once = false
+                }
+            });
+            socket9.on('event:message', function (data) {
+                let payload = require("../testdata/model_export.json")
                 chai.request(app)
                     .post('/api/notify')
                     .set('Content-Type', 'application/json')
