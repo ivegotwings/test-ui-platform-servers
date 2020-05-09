@@ -419,7 +419,7 @@ func prepareNotificationObject(userNotificationInfo *UserNotificationInfo, notif
 	}
 	userNotificationInfo.Description = desc
 
-	action, dataIndex := 0, "default"
+	action, dataIndex := 0, "entityData"
 	if userNotificationInfo.Operation == "MODEL_IMPORT" {
 		dataIndex = "entityModel"
 		action = actions[actionLookUpTable[userNotificationInfo.Operation+"_"+userNotificationInfo.Status]]
@@ -436,7 +436,10 @@ func prepareNotificationObject(userNotificationInfo *UserNotificationInfo, notif
 			action = actions[actionLookUpTable[userNotificationInfo.ServiceName+"_"+userNotificationInfo.Status+"_"+userNotificationInfo.Description]]
 		}
 	} else if userNotificationInfo.ServiceName == "entitymanagemodelservice" {
-		action = actions[actionLookUpTable[userNotificationInfo.ServiceName+"_"+userNotificationInfo.Status]]
+		origStatus := strings.ToLower(userNotificationInfo.RequestStatus)
+		if origStatus == "success" || origStatus == "error" {
+			action = actions[actionLookUpTable[userNotificationInfo.ServiceName+"_"+userNotificationInfo.Status]]
+		}
 	} else if userNotificationInfo.ServiceName == "entitygovernservice" {
 		if userNotificationInfo.Operation == "" {
 			action = actions[actionLookUpTable[userNotificationInfo.ServiceName+"_"+userNotificationInfo.Status]]
@@ -444,14 +447,15 @@ func prepareNotificationObject(userNotificationInfo *UserNotificationInfo, notif
 			action = actions[actionLookUpTable[userNotificationInfo.ServiceName+"_"+userNotificationInfo.Operation+"_"+userNotificationInfo.Status]]
 		}
 	} else if userNotificationInfo.ServiceName == "notificationmanageservice" {
-		action = actions[actionLookUpTable[userNotificationInfo.ServiceName+"_"+userNotificationInfo.TaskType+"_"+userNotificationInfo.Status]]
-	}
+		if userNotificationInfo.TaskType == "changeAssignment-multi-query" || userNotificationInfo.TaskType == "transitionWorkflow-multi-query" {
+			action = actions[actionLookUpTable[userNotificationInfo.ServiceName+"_"+userNotificationInfo.TaskType+"_"+userNotificationInfo.Status]]
+		}
 
+	}
 	if val, ok := dataIndexMapping[userNotificationInfo.ServiceName]; ok {
 		dataIndex = val
 	}
 	utils.PrintDebug("setActionAndDataIndex- action & dataIndex %s %s", action, dataIndex)
-
 	userNotificationInfo.Action = action
 	userNotificationInfo.DataIndex = dataIndex
 	return err
