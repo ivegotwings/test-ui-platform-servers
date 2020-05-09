@@ -105,7 +105,7 @@ func main() {
 
 	server.OnConnect("", func(so socketio.Conn) error {
 		so.SetContext("")
-		err := redisBroadCastAdaptor.Join("testroom", so)
+		err := redisBroadCastAdaptor.Join("all-sockets", so)
 		if err != nil {
 			utils.PrintInfo("Redis BroadCastManager- Failure to connect " + err.Error())
 		}
@@ -116,7 +116,7 @@ func main() {
 
 	server.OnDisconnect("", func(so socketio.Conn, reason string) {
 		utils.PrintDebug("disconnected socket reason- %s", reason)
-
+		redisBroadCastAdaptor.Leave(so)
 	})
 
 	server.OnError("error", func(so socketio.Conn, err error) {

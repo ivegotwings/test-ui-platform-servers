@@ -1,8 +1,6 @@
 package connection
 
 import (
-	"errors"
-
 	"ui-platform-servers/notificationsvc/cmap_string_socket"
 	"ui-platform-servers/notificationsvc/utils"
 
@@ -162,25 +160,25 @@ func (b Broadcast) Join(room string, socket socketio.Conn) error {
 	return nil
 }
 
-func (b Broadcast) Leave(room string, socket socketio.Conn) error {
-	sockets, ok := b.rooms.Get(room)
-	if !ok {
-		return errors.New("Socket not found in room " + room)
+func (b Broadcast) Leave(socket socketio.Conn) {
+	var sockets cmap_string_socket.ConcurrentMap
+	var ok bool
+	var room string
+	if room == "" {
+		for t := range b.rooms.Iter() {
+			sockets, ok = b.rooms.Get(t.Key)
+			if sockets.Has(socket.ID()) && ok {
+				room = t.Key
+				utils.PrintDebug("removing socket with id from room %s %s", socket.ID(), room)
+				sockets.Remove(socket.ID())
+				if sockets.IsEmpty() {
+					b.rooms.Remove(room)
+				} else {
+					b.rooms.Set(room, sockets)
+				}
+			}
+		}
 	}
-	var _socket *utils.SocketWithLock
-	_socket, ok = sockets.Get(socket.ID())
-	if !ok {
-		return errors.New("Socket parent not found for socket id " + socket.ID())
-	}
-	_socket.Lock()
-	sockets.Remove(socket.ID())
-	if sockets.IsEmpty() {
-		b.rooms.Remove(room)
-		return nil
-	}
-	b.rooms.Set(room, sockets)
-	_socket.Unlock()
-	return nil
 }
 
 // Same as Broadcast
