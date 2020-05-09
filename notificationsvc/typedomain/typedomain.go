@@ -287,6 +287,11 @@ type TypeDomainResponse struct {
 var tenantTypeDomainMap map[string]map[string]string = make(map[string]map[string]string)
 
 func InitializeEntityTypeDomainMap(context executioncontext.Context) (map[string]string, error) {
+	defer func() {
+		if err := recover(); err != nil {
+			utils.PrintError(err.(string))
+		}
+	}()
 	var requestBody []byte = []byte(`{"params":{"query":{"filters":{"typesCriterion":["entityType"]}},"fields": {"attributes": ["_ALL"],"relationships": ["_ALL"]}}}`)
 	entityTypeDomainLookUp := make(map[string]string)
 	req, err := http.NewRequest("POST", "http://"+context.Host+"/"+context.TenantId+"/api/entitymodelservice/get", bytes.NewBuffer(requestBody))
@@ -308,7 +313,7 @@ func InitializeEntityTypeDomainMap(context executioncontext.Context) (map[string
 		req.Header.Set("x-rdp-authtoken", executioncontext.GetAuthKey())
 
 		client := &http.Client{
-			Timeout: 30 * time.Second,
+			Timeout: 5 * time.Second,
 		}
 		resp, err := client.Do(req)
 		if err != nil {
@@ -334,11 +339,6 @@ func InitializeEntityTypeDomainMap(context executioncontext.Context) (map[string
 			}
 
 		}
-		defer func() {
-			if err := recover(); err != nil {
-				utils.PrintError(err.(string))
-			}
-		}()
 		defer resp.Body.Close()
 	}
 	utils.PrintDebug("inittypedomaintenantmap response %+v\n", entityTypeDomainLookUp)
@@ -346,6 +346,11 @@ func InitializeEntityTypeDomainMap(context executioncontext.Context) (map[string
 }
 
 func GetDomainForEntityType(entityType string, context executioncontext.Context) (string, error) {
+	defer func() {
+		if err := recover(); err != nil {
+			utils.PrintError(err.(string))
+		}
+	}()
 	var lookUpValue string
 	if os.Getenv("USER") == "sudo" {
 		return "thing", nil
@@ -388,7 +393,7 @@ func GetDomainForEntityType(entityType string, context executioncontext.Context)
 				req.Header.Set("x-rdp-authtoken", executioncontext.GetAuthKey())
 
 				client := &http.Client{
-					Timeout: 30 * time.Second,
+					Timeout: 5 * time.Second,
 				}
 				resp, err := client.Do(req)
 				if err != nil {
@@ -414,11 +419,6 @@ func GetDomainForEntityType(entityType string, context executioncontext.Context)
 						}
 					}
 				}
-				defer func() {
-					if err := recover(); err != nil {
-						utils.PrintError(err.(string))
-					}
-				}()
 				defer resp.Body.Close()
 			}
 		}

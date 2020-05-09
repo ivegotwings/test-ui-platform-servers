@@ -158,9 +158,9 @@ func main() {
 	tracedHandler := apmhttp.Wrap(http.HandlerFunc(notificationHandler.Notify))
 	http.Handle("/api/notify", tracedHandler)
 	client := &http.Server{
-		ReadTimeout:  6 * time.Second,
-		WriteTimeout: 6 * time.Second,
-		IdleTimeout:  100 * time.Millisecond,
+		ReadTimeout:  3 * time.Second,
+		WriteTimeout: 3 * time.Second,
+		IdleTimeout:  3 * time.Millisecond,
 		Handler:      nil,
 		Addr:         ":5007",
 	}
