@@ -21,6 +21,7 @@ var ioClient = require('socket.io-client')
 let socket1 = ioClient.connect('http://localhost:5007');
 let socket2 = ioClient.connect('http://localhost:5007');
 let socket3 = ioClient.connect('http://localhost:5007');
+let socket4 = ioClient.connect('http://localhost:5007');
 
 tags("notificationsvc", "socket")
     .describe("notification", () => {
@@ -143,6 +144,39 @@ tags("notificationsvc", "socket")
             });
             socket3.on('event:message', function (data) {
                 let payload = require("../testdata/workflow_transition.json")
+                chai.request(app)
+                    .post('/api/notify')
+                    .set('Content-Type', 'application/json')
+                    .send(payload)
+                    .end(function (err, res) { })
+            });
+        })
+        it('workflow_assignment socket should receive valid data', (done) => {
+            let once = true;
+            socket4.on('disconnect', function () { });
+            setTimeout(() => {
+                socket4.emit("event:adduser", JSON.stringify({ userId: "rdwadmin@riversand.com_user", tenantId: "rdwengg-az-dev2" }))
+            }, 10)
+
+            socket4.once('connect', async function (args) {
+                //console.log("connect")
+            });
+
+            socket4.on('event:notification', function (data) {
+                if (once) {
+                    chai.assert(data != undefined, "failed to receive socket connection response")
+                    //chai.assert(data.description == "System Manage Complete", "workflow_assignment_failed property- description")
+                    chai.assert(data.status == "success", "workflow_assignment_failed property- status")
+                    chai.assert(data.requestStatus == "success", "workflow_assignment_failed property- requestStatus")
+                    chai.assert(data.operation == "WorkflowAssignment", "workflow_assignment_failed property- operation")
+                    chai.assert(data.dataIndex == "entityData", "workflow_assignment_failed property- dataIndex")
+                    chai.assert(data.action == 9, "workflow_assignment_failed property- action")
+                    done();
+                    once = false
+                }
+            });
+            socket4.on('event:message', function (data) {
+                let payload = require("../testdata/workflow_assignment.json")
                 chai.request(app)
                     .post('/api/notify')
                     .set('Content-Type', 'application/json')
