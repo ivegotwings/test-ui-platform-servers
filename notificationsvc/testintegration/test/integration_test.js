@@ -24,11 +24,12 @@ let socket3 = ioClient.connect('http://localhost:5007');
 let socket4 = ioClient.connect('http://localhost:5007');
 let socket5 = ioClient.connect('http://localhost:5007');
 let socket6 = ioClient.connect('http://localhost:5007');
+let socket7 = ioClient.connect('http://localhost:5007');
 
 
 tags("notificationsvc", "socket")
     .describe("notification", () => {
-        xit('socket should receive connection message', (done) => {
+        it('socket should receive connection message', (done) => {
             let once = true
             setTimeout(() => {
                 socket1.emit("event:adduser", JSON.stringify({ userId: "rdwadmin@riversand.com_user", tenantId: "rdwengg-az-dev2" }))
@@ -46,7 +47,7 @@ tags("notificationsvc", "socket")
                 }
             });
         })
-        xit('notify should eco valid data', (done) => {
+        it('notify should eco valid data', (done) => {
             let once = true;
             socket2.on('disconnect', function () { });
             setTimeout(() => {
@@ -87,7 +88,7 @@ tags("notificationsvc", "socket")
                     .end(function (err, res) { })
             });
         })
-        xit('model_save_complete socket should receive valid data', (done) => {
+        it('model_save_complete socket should receive valid data', (done) => {
             let once = true;
             socket2.on('disconnect', function () { });
             setTimeout(() => {
@@ -121,7 +122,7 @@ tags("notificationsvc", "socket")
                     .end(function (err, res) { })
             });
         })
-        xit('workflow_transition socket should receive valid data', (done) => {
+        it('workflow_transition socket should receive valid data', (done) => {
             let once = true;
             socket3.on('disconnect', function () { });
             setTimeout(() => {
@@ -154,7 +155,7 @@ tags("notificationsvc", "socket")
                     .end(function (err, res) { })
             });
         })
-        xit('workflow_assignment socket should receive valid data', (done) => {
+        it('workflow_assignment socket should receive valid data', (done) => {
             let once = true;
             socket4.on('disconnect', function () { });
             setTimeout(() => {
@@ -187,7 +188,7 @@ tags("notificationsvc", "socket")
                     .end(function (err, res) { })
             });
         })
-        xit('entity_update socket should receive valid data', (done) => {
+        it('entity_update socket should receive valid data', (done) => {
             let once = true;
             socket5.on('disconnect', function () { });
             setTimeout(() => {
@@ -246,6 +247,40 @@ tags("notificationsvc", "socket")
             });
             socket6.on('event:message', function (data) {
                 let payload = require("../testdata/model_import.json")
+                chai.request(app)
+                    .post('/api/notify')
+                    .set('Content-Type', 'application/json')
+                    .send(payload)
+                    .end(function (err, res) { })
+            });
+        })
+
+        it('business_condition_save socket should receive valid data', (done) => {
+            let once = true;
+            socket7.on('disconnect', function () { });
+            setTimeout(() => {
+                socket7.emit("event:adduser", JSON.stringify({ userId: "rdwadmin@riversand.com_user", tenantId: "rdwengg-az-dev2" }))
+            }, 10)
+
+            socket7.once('connect', async function (args) {
+                //console.log("connect")
+            });
+
+            socket7.on('event:notification', function (data) {
+                if (once) {
+                    chai.assert(data != undefined, "failed to receive socket connection response")
+                    //chai.assert(data.description == "System Manage Complete", "business_condition_save_failed property- description")
+                    chai.assert(data.status == "success", "business_condition_save_failed property- status")
+                    chai.assert(data.requestStatus == "success", "business_condition_save_failed property- requestStatus")
+                    chai.assert(data.operation == "BusinessCondition", "business_condition_save_failed property- operation")
+                    chai.assert(data.dataIndex == "entityData", "business_condition_save_failed property- dataIndex")
+                    chai.assert(data.action == 13, "business_condition_save_failed property- action")
+                    done();
+                    once = false
+                }
+            });
+            socket7.on('event:message', function (data) {
+                let payload = require("../testdata/business_condition_save.json")
                 chai.request(app)
                     .post('/api/notify')
                     .set('Content-Type', 'application/json')
