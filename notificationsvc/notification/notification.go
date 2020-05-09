@@ -3,7 +3,6 @@ package notification
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -105,8 +104,16 @@ type Attributes struct {
 }
 
 type Data struct {
-	Attributes Attributes `json:"attributes"`
-	JsonData   JsonData   `json:"jsonData"`
+	Attributes    Attributes  `json:"attributes"`
+	JsonData      JsonData    `json:"jsonData"`
+	TenantId      string      `json:"tenantId"`
+	ServiceName   string      `json:"serviceName"`
+	Domain        string      `json:"domain"`
+	Params        interface{} `json:"params"`
+	ReturnRequest bool        `json:"returnRequest"`
+	Id            string      `json:"id"`
+	Type          string      `json:"type"`
+	Properties    Properties  `json:"properties"`
 }
 
 type NotificationObject struct {
@@ -115,14 +122,6 @@ type NotificationObject struct {
 
 type Notification struct {
 	NotificationObject NotificationObject `json:"notificationObject"`
-	TenantId           string             `json:"tenantId"`
-	ServiceName        string             `json:"serviceName"`
-	Domain             string             `json:"domain"`
-	Params             interface{}        `json:"params"`
-	ReturnRequest      bool               `json:"returnRequest"`
-	Id                 string             `json:"id"`
-	Type               string             `json:"type"`
-	Properties         Properties         `json:"properties"`
 }
 
 type Properties struct {
@@ -259,28 +258,23 @@ func processNotification(body []byte, context executioncontext.Context) {
 		utils.PrintInfo(err.Error())
 	} else {
 		utils.PrintDebug("NotificationObject- %v\n", _message.NotificationObject)
-		tenantId := _message.TenantId
+		tenantId := _message.NotificationObject.Data.TenantId
 		userId := _message.NotificationObject.Data.JsonData.ClientState.NotificationInfo.UserId
-		if tenantId != "" && userId != "" {
+		if tenantId != "" || userId != "" {
 			var clientId string
 			if len(_message.NotificationObject.Data.Attributes.ClientId.Values) > 0 {
 				clientId = _message.NotificationObject.Data.Attributes.ClientId.Values[0].Value
 			}
-			if clientId != "" {
-				if ok := utils.Contains(clientIdNotificationExlusionList, clientId); ok {
-					utils.PrintInfo("Ignoring notification for clientId: " + clientId)
-				}
-				err := sendNotification(_message.NotificationObject, tenantId, context, tx)
-				if err != nil {
-					utils.PrintInfo(err.Error())
-				}
-			} else {
-				err = errors.New("Notify- missing clientId")
-				fmt.Println(err)
+			if ok := utils.Contains(clientIdNotificationExlusionList, clientId); ok {
+				utils.PrintInfo("Ignoring notification for clientId: " + clientId)
+			}
+			err := sendNotification(_message.NotificationObject, tenantId, context, tx)
+			if err != nil {
 				utils.PrintInfo(err.Error())
 			}
+
 		} else {
-			err = errors.New("Notify- tenantId or userId not found")
+			err = errors.New("Notify- tenantId and userId not found")
 			utils.PrintInfo(err.Error())
 		}
 	}
@@ -320,6 +314,9 @@ func sendNotification(notificationObject NotificationObject, tenantId string, co
 		} else {
 			context.UserId = userInfo["userId"]
 			context.TenantId = userInfo["tenantId"]
+			if context.UserId == "" {
+				context.UserId = "unknown"
+			}
 			span := tx.StartSpan("getdomainforentitytype", "function", nil)
 			typeDomain, err := typedomain.GetDomainForEntityType(userNotificationInfo.Context.Type, context)
 			span.End()
@@ -355,40 +352,36 @@ func prepareNotificationObject(userNotificationInfo *UserNotificationInfo, notif
 		entityType = notificationObject.Data.Attributes.EntityType.Values[0].Value
 	}
 
-	if entityId == "" || entityType == "" {
-		err = errors.New("prepareNotificationObject- missing entityId or entityType")
-	} else {
-		//fill userNotificationInfo
-		userNotificationInfo.ShowNotificationToUser = notificationObject.Data.JsonData.ClientState.NotificationInfo.ShowNotificationToUser
-		userNotificationInfo.Id = notificationObject.Data.JsonData.ClientState.NotificationInfo.Id
-		userNotificationInfo.TimeStamp = notificationObject.Data.JsonData.ClientState.NotificationInfo.TimeStamp
-		userNotificationInfo.Source = notificationObject.Data.JsonData.ClientState.NotificationInfo.Source
-		userNotificationInfo.UserId = notificationObject.Data.JsonData.ClientState.NotificationInfo.UserId
-		userNotificationInfo.ConnectionId = notificationObject.Data.JsonData.ClientState.NotificationInfo.ConnectionId
-		userNotificationInfo.Context = notificationObject.Data.JsonData.ClientState.NotificationInfo.Context
-		userNotificationInfo.EmulatedSyncDownload = notificationObject.Data.JsonData.ClientState.EmulatedSyncDownload
-		userNotificationInfo.Operation = notificationObject.Data.JsonData.ClientState.NotificationInfo.Operation
-		userNotificationInfo.ActionType = notificationObject.Data.JsonData.ClientState.NotificationInfo.ActionType
-		userNotificationInfo.Id = notificationObject.Data.JsonData.ClientState.NotificationInfo.Id
-		if userNotificationInfo.Context.Id != entityId {
-			userNotificationInfo.Context.Id = entityId
-			userNotificationInfo.Context.Type = entityType
-			userNotificationInfo.ShowNotificationToUser = false
-		} else if userNotificationInfo.Context.Id == "" {
-			userNotificationInfo.Context.Id = entityId
-			userNotificationInfo.Context.Type = entityType
+	//fill userNotificationInfo
+	userNotificationInfo.ShowNotificationToUser = notificationObject.Data.JsonData.ClientState.NotificationInfo.ShowNotificationToUser
+	userNotificationInfo.Id = notificationObject.Data.JsonData.ClientState.NotificationInfo.Id
+	userNotificationInfo.TimeStamp = notificationObject.Data.JsonData.ClientState.NotificationInfo.TimeStamp
+	userNotificationInfo.Source = notificationObject.Data.JsonData.ClientState.NotificationInfo.Source
+	userNotificationInfo.UserId = notificationObject.Data.JsonData.ClientState.NotificationInfo.UserId
+	userNotificationInfo.ConnectionId = notificationObject.Data.JsonData.ClientState.NotificationInfo.ConnectionId
+	userNotificationInfo.Context = notificationObject.Data.JsonData.ClientState.NotificationInfo.Context
+	userNotificationInfo.EmulatedSyncDownload = notificationObject.Data.JsonData.ClientState.EmulatedSyncDownload
+	userNotificationInfo.Operation = notificationObject.Data.JsonData.ClientState.NotificationInfo.Operation
+	userNotificationInfo.ActionType = notificationObject.Data.JsonData.ClientState.NotificationInfo.ActionType
+	userNotificationInfo.Id = notificationObject.Data.JsonData.ClientState.NotificationInfo.Id
+	if userNotificationInfo.Context.Id != entityId {
+		userNotificationInfo.Context.Id = entityId
+		userNotificationInfo.Context.Type = entityType
+		userNotificationInfo.ShowNotificationToUser = false
+	} else if userNotificationInfo.Context.Id == "" {
+		userNotificationInfo.Context.Id = entityId
+		userNotificationInfo.Context.Type = entityType
+	}
+	if userNotificationInfo.Operation == "" {
+		if len(notificationObject.Data.Attributes.ConnectIntegrationType.Values) > 0 {
+			userNotificationInfo.Operation = notificationObject.Data.Attributes.ConnectIntegrationType.Values[0].Value
 		}
-		if userNotificationInfo.Operation == "" {
-			if len(notificationObject.Data.Attributes.ConnectIntegrationType.Values) > 0 {
-				userNotificationInfo.Operation = notificationObject.Data.Attributes.ConnectIntegrationType.Values[0].Value
-			}
-		}
-		if len(notificationObject.Data.Attributes.RequestId.Values) > 0 {
-			userNotificationInfo.RequestId = notificationObject.Data.Attributes.RequestId.Values[0].Value
-		}
-		if len(notificationObject.Data.Attributes.RequestStatus.Values) > 0 {
-			userNotificationInfo.RequestStatus = notificationObject.Data.Attributes.RequestStatus.Values[0].Value
-		}
+	}
+	if len(notificationObject.Data.Attributes.RequestId.Values) > 0 {
+		userNotificationInfo.RequestId = notificationObject.Data.Attributes.RequestId.Values[0].Value
+	}
+	if len(notificationObject.Data.Attributes.RequestStatus.Values) > 0 {
+		userNotificationInfo.RequestStatus = notificationObject.Data.Attributes.RequestStatus.Values[0].Value
 	}
 	if len(notificationObject.Data.Attributes.ServiceName.Values) > 0 {
 		userNotificationInfo.ServiceName = strings.ToLower(notificationObject.Data.Attributes.ServiceName.Values[0].Value)

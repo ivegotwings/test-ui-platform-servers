@@ -18,6 +18,9 @@ type SocketWithLock struct {
 var ctx executioncontext.Context
 
 func Contains(arr []string, str string) bool {
+	if str == "" {
+		return false
+	}
 	for _, a := range arr {
 		if a == str {
 			return true
