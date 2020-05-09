@@ -22,6 +22,7 @@ import (
 
 type UserNotificationInfo struct {
 	NotificationInfo
+	ActionType           string `json:"actionType"`
 	RequestStatus        string `json:"requestStatus"`
 	TaskId               string `json:"taskId"`
 	TaskType             string `json:"taskType"`
@@ -367,6 +368,8 @@ func prepareNotificationObject(userNotificationInfo *UserNotificationInfo, notif
 		userNotificationInfo.Context = notificationObject.Data.JsonData.ClientState.NotificationInfo.Context
 		userNotificationInfo.EmulatedSyncDownload = notificationObject.Data.JsonData.ClientState.EmulatedSyncDownload
 		userNotificationInfo.Operation = notificationObject.Data.JsonData.ClientState.NotificationInfo.Operation
+		userNotificationInfo.ActionType = notificationObject.Data.JsonData.ClientState.NotificationInfo.ActionType
+		userNotificationInfo.Id = notificationObject.Data.JsonData.ClientState.NotificationInfo.Id
 		if userNotificationInfo.Context.Id != entityId {
 			userNotificationInfo.Context.Id = entityId
 			userNotificationInfo.Context.Type = entityType
@@ -379,6 +382,9 @@ func prepareNotificationObject(userNotificationInfo *UserNotificationInfo, notif
 			if len(notificationObject.Data.Attributes.ConnectIntegrationType.Values) > 0 {
 				userNotificationInfo.Operation = notificationObject.Data.Attributes.ConnectIntegrationType.Values[0].Value
 			}
+		}
+		if len(notificationObject.Data.Attributes.RequestId.Values) > 0 {
+			userNotificationInfo.RequestId = notificationObject.Data.Attributes.RequestId.Values[0].Value
 		}
 		if len(notificationObject.Data.Attributes.RequestStatus.Values) > 0 {
 			userNotificationInfo.RequestStatus = notificationObject.Data.Attributes.RequestStatus.Values[0].Value
