@@ -1,7 +1,7 @@
-Unit Tests-
+Unit Tests-(vpn connected)
     normal- go test ./...
     verbose- go test -v ./...
-Integration Tests-
+Integration Tests-(vpn connected)
     bash run_development
     cd testintegration
     npx mocha --timeout 5000
