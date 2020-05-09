@@ -29,6 +29,7 @@ let socket8 = ioClient.connect('http://localhost:5007');
 let socket9 = ioClient.connect('http://localhost:5007');
 let socket10 = ioClient.connect('http://localhost:5007');
 let socket11 = ioClient.connect('http://localhost:5007');
+let socket12 = ioClient.connect('http://localhost:5007');
 
 
 tags("notificationsvc", "socket")
@@ -408,6 +409,37 @@ tags("notificationsvc", "socket")
             });
             socket11.on('event:message', function (data) {
                 let payload = require("../testdata/wf_transition.json")
+                chai.request(app)
+                    .post('/api/notify')
+                    .set('Content-Type', 'application/json')
+                    .send(payload)
+                    .end(function (err, res) { })
+            });
+        })
+        it('wf_assignment socket should receive valid data', (done) => {
+            let once = true; socket8.on('disconnect', function () { });
+            setTimeout(() => {
+                socket12.emit("event:adduser", JSON.stringify({ userId: "rdwadmin@riversand.com_user", tenantId: "rdwengg-az-dev2" }))
+            }, 10)
+
+            socket12.once('connect', async function (args) {
+                //console.log("connect")
+            });
+
+            socket12.on('event:notification', function (data) {
+                if (once) {
+                    chai.assert(data != undefined, "failed to receive socket connection response")
+                    //chai.assert(data.description == "System Manage Complete", "wf_assignment_failed property- description")
+                    chai.assert(data.status == "success", "wf_assignment_failed property- status")
+                    chai.assert(data.requestStatus == "Completed", "wf_assignment_failed property- requestStatus")
+                    chai.assert(data.dataIndex == "entityData", "wf_assignment_failed property- dataIndex")
+                    chai.assert(data.action == 20, "wf_assignment_failed property- action")
+                    chai.assert(data.taskType == "changeAssignment-multi-query", "wf_assignment_failed property- action")
+                    done(); once = false
+                }
+            });
+            socket12.on('event:message', function (data) {
+                let payload = require("../testdata/wf_assignment.json")
                 chai.request(app)
                     .post('/api/notify')
                     .set('Content-Type', 'application/json')
