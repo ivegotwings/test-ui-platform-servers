@@ -1,0 +1,161 @@
+{
+  "domain": "notificationDataObject",
+  "notificationObject": {
+    "data": {
+      "attributes": {
+        "ObjectStore": {
+          "values": [
+            {
+              "id": "049a0c83-91d6-405f-b15b-2b46a67c7df9",
+              "locale": "en-US",
+              "source": "internal",
+              "value": "success"
+            }
+          ]
+        },
+        "clientId": {
+          "values": [
+            {
+              "id": "9c90ba72-3caa-414e-8e79-2865d6cdca23",
+              "locale": "en-US",
+              "source": "internal",
+              "value": "rufClient"
+            }
+          ]
+        },
+        "entityAction": {
+          "values": [
+            {
+              "id": "6bf98e58-324d-4925-91b7-9fde5b4235fb",
+              "locale": "en-US",
+              "source": "internal",
+              "value": "update"
+            }
+          ]
+        },
+        "entityId": {
+          "values": [
+            {
+              "id": "db30f4e6-eafd-4680-8824-399df434c70a",
+              "locale": "en-US",
+              "source": "internal",
+              "value": "PAK-QK1eRF25CE_hNMhzaw"
+            }
+          ]
+        },
+        "entityType": {
+          "values": [
+            {
+              "id": "79f59af0-2ea5-42d6-9ba6-c246295a7b28",
+              "locale": "en-US",
+              "source": "internal",
+              "value": "product"
+            }
+          ]
+        },
+        "relatedRequestId": {
+          "values": [
+            {
+              "id": "bd5b735b-83e0-4fbc-91dc-56acac2acd8e",
+              "locale": "en-US",
+              "source": "internal",
+              "value": "4d588fcf-0701-4e9b-8d8e-262f3db165b0"
+            }
+          ]
+        },
+        "requestGroupId": {
+          "values": [
+            {
+              "id": "48922546-4c65-43ca-9b02-9b7df4853589",
+              "locale": "en-US",
+              "source": "internal",
+              "value": "d2972c2f-d1ac-4cf1-a54e-4d44cc34cacc"
+            }
+          ]
+        },
+        "requestId": {
+          "values": [
+            {
+              "id": "396df52d-e3c2-4689-a893-f26a3883de54",
+              "locale": "en-US",
+              "source": "internal",
+              "value": "1b0befe1-b90c-4d22-b42d-3f98fead3cc0"
+            }
+          ]
+        },
+        "requestStatus": {
+          "values": [
+            {
+              "id": "cc4bc693-a0d0-4c73-9fcf-d6d9fdec7ece",
+              "locale": "en-US",
+              "source": "internal",
+              "value": "success"
+            }
+          ]
+        },
+        "requestTimestamp": {
+          "values": [
+            {
+              "id": "e5356284-962f-4919-9e11-933ab4bd92d6",
+              "locale": "en-US",
+              "source": "internal",
+              "value": 1588086607695
+            }
+          ]
+        },
+        "serviceName": {
+          "values": [
+            {
+              "id": "b281c188-ee18-421d-abdb-fa473cb46634",
+              "locale": "en-US",
+              "source": "internal",
+              "value": "entityGovernService"
+            }
+          ]
+        },
+        "userId": {
+          "values": [
+            {
+              "id": "7606bbd0-4ba9-4989-81d0-5119a1203fb4",
+              "locale": "en-US",
+              "source": "internal",
+              "value": "rdwadmin@riversand.com_user"
+            }
+          ]
+        }
+      },
+      "jsonData": {
+        "clientState": {
+          "notificationInfo": {
+            "connectionId": "",
+            "context": {
+              "appInstanceId": "app-entity-manage-component-rsNveXF38EOnaPYs97",
+              "dataIndex": "entityData",
+              "id": "PAK-QK1eRF25CE_hNMhzaw",
+              "type": "product"
+            },
+            "id": "2bed97bb3827a51a",
+            "showNotificationToUser": true,
+            "source": "ui",
+            "timeStamp": "2020-04-28T15:10:06.004Z",
+            "userId": "rdwadmin@riversand.com_user"
+          }
+        }
+      }
+    },
+    "id": "1b0befe1-b90c-4d22-b42d-3f98fead3cc0",
+    "properties": {
+      "createdBy": "testtenantdev@riversand.com_user",
+      "createdDate": "2020-04-28T09:10:07.822-0600",
+      "createdService": "notificationManageService",
+      "modifiedBy": "testtenantdev@riversand.com_user",
+      "modifiedDate": "2020-04-28T09:10:07.822-0600",
+      "modifiedService": "notificationManageService"
+    },
+    "type": "notificationObject"
+  },
+  "params": {},
+  "returnRequest": false,
+  "serviceName": "notificationManageService",
+  "tenantId": "rdwengg-az-dev2"
+}

@@ -22,6 +22,7 @@ let socket1 = ioClient.connect('http://localhost:5007');
 let socket2 = ioClient.connect('http://localhost:5007');
 let socket3 = ioClient.connect('http://localhost:5007');
 let socket4 = ioClient.connect('http://localhost:5007');
+let socket5 = ioClient.connect('http://localhost:5007');
 
 tags("notificationsvc", "socket")
     .describe("notification", () => {
@@ -177,6 +178,39 @@ tags("notificationsvc", "socket")
             });
             socket4.on('event:message', function (data) {
                 let payload = require("../testdata/workflow_assignment.json")
+                chai.request(app)
+                    .post('/api/notify')
+                    .set('Content-Type', 'application/json')
+                    .send(payload)
+                    .end(function (err, res) { })
+            });
+        })
+        it('entity_update socket should receive valid data', (done) => {
+            let once = true;
+            socket5.on('disconnect', function () { });
+            setTimeout(() => {
+                socket5.emit("event:adduser", JSON.stringify({ userId: "rdwadmin@riversand.com_user", tenantId: "rdwengg-az-dev2" }))
+            }, 10)
+
+            socket5.once('connect', async function (args) {
+                //console.log("connect")
+            });
+
+            socket5.on('event:notification', function (data) {
+                if (once) {
+                    chai.assert(data != undefined, "failed to receive socket connection response")
+                    //chai.assert(data.description == "System Manage Complete", "entity_update_failed property- description")
+                    chai.assert(data.status == "success", "entity_update_failed property- status")
+                    chai.assert(data.requestStatus == "success", "entity_update_failed property- requestStatus")
+                    chai.assert(data.operation == "", "entity_update_failed property- operation")
+                    chai.assert(data.dataIndex == "entityData", "entity_update_failed property- dataIndex")
+                    chai.assert(data.action == 5, "entity_update_failed property- action")
+                    done();
+                    once = false
+                }
+            });
+            socket5.on('event:message', function (data) {
+                let payload = require("../testdata/entity_update.json")
                 chai.request(app)
                     .post('/api/notify')
                     .set('Content-Type', 'application/json')
