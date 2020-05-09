@@ -3,7 +3,6 @@ package notification
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -269,13 +268,12 @@ func processNotification(body []byte, context executioncontext.Context) {
 				clientId = _message.NotificationObject.Data.Attributes.ClientId.Values[0].Value
 			}
 			if ok := utils.Contains(clientIdNotificationExlusionList, clientId); ok {
-				utils.PrintError("Ignoring notification for clientId: " + clientId)
-			}
-			err := sendNotification(_message.NotificationObject, tenantId, context, tx)
-			if err != nil {
-				fmt.Println("****", err)
-
-				utils.PrintError(err.Error())
+				utils.PrintDebug("Ignoring notification for clientId: " + clientId)
+			} else {
+				err := sendNotification(_message.NotificationObject, tenantId, context, tx)
+				if err != nil {
+					utils.PrintError(err.Error())
+				}
 			}
 
 		} else {

@@ -110,7 +110,7 @@ func main() {
 		if err != nil {
 			utils.PrintInfo("Redis BroadCastManager- Failure to connect " + err.Error())
 		}
-		utils.PrintInfo("connected socketId: " + so.ID())
+		utils.PrintDebug("connected socketId: " + so.ID())
 
 		return nil
 	})
@@ -139,9 +139,9 @@ func main() {
 				tenant_room := "socket_conn_room_tenant_" + userInfo["tenantId"].(string)
 				err = redisBroadCastAdaptor.Join(tenant_room, so)
 				if err != nil {
-					utils.PrintInfo("Redis BroadCastManager- Failure to connect: " + err.Error())
+					utils.PrintError("Redis BroadCastManager- Failure to connect: " + err.Error())
 				} else {
-					utils.PrintInfo("adding new user to rooms: " + user_room + tenant_room)
+					utils.PrintDebug("adding new user to rooms: " + user_room + tenant_room)
 					so.Emit("event:message", _userInfo)
 				}
 			}
