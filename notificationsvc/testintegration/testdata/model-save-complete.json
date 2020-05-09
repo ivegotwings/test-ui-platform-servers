@@ -58,7 +58,7 @@
               "id": "acf02d09-f894-4a45-aaa8-9ea8da79e370",
               "locale": "en-US",
               "source": "internal",
-              "value": "Completed"
+              "value": "success"
             }
           ]
         },
@@ -78,7 +78,7 @@
               "id": "bd873000-6b72-4168-8b1d-14e48bed7100",
               "locale": "en-US",
               "source": "internal",
-              "value": "notificationManageService"
+              "value": "entityManageModelService"
             }
           ]
         },
