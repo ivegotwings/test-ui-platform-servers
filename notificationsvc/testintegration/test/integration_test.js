@@ -28,6 +28,7 @@ let socket7 = ioClient.connect('http://localhost:5007');
 let socket8 = ioClient.connect('http://localhost:5007');
 let socket9 = ioClient.connect('http://localhost:5007');
 let socket10 = ioClient.connect('http://localhost:5007');
+let socket11 = ioClient.connect('http://localhost:5007');
 
 
 tags("notificationsvc", "socket")
@@ -376,6 +377,37 @@ tags("notificationsvc", "socket")
             });
             socket10.on('event:message', function (data) {
                 let payload = require("../testdata/entity_export.json")
+                chai.request(app)
+                    .post('/api/notify')
+                    .set('Content-Type', 'application/json')
+                    .send(payload)
+                    .end(function (err, res) { })
+            });
+        })
+        it('wf_transition socket should receive valid data', (done) => {
+            let once = true; socket8.on('disconnect', function () { });
+            setTimeout(() => {
+                socket11.emit("event:adduser", JSON.stringify({ userId: "rdwadmin@riversand.com_user", tenantId: "rdwengg-az-dev2" }))
+            }, 10)
+
+            socket11.once('connect', async function (args) {
+                //console.log("connect")
+            });
+
+            socket11.on('event:notification', function (data) {
+                if (once) {
+                    chai.assert(data != undefined, "failed to receive socket connection response")
+                    //chai.assert(data.description == "System Manage Complete", "wf_transition_failed property- description")
+                    chai.assert(data.status == "success", "wf_transition_failed property- status")
+                    chai.assert(data.requestStatus == "Completed", "wf_transition_failed property- requestStatus")
+                    chai.assert(data.dataIndex == "entityData", "wf_transition_failed property- dataIndex")
+                    chai.assert(data.action == 21, "wf_transition_failed property- action")
+                    chai.assert(data.taskType == "transitionWorkflow-multi-query", "wf_transition_failed property- action")
+                    done(); once = false
+                }
+            });
+            socket11.on('event:message', function (data) {
+                let payload = require("../testdata/wf_transition.json")
                 chai.request(app)
                     .post('/api/notify')
                     .set('Content-Type', 'application/json')
