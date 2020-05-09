@@ -104,16 +104,8 @@ type Attributes struct {
 }
 
 type Data struct {
-	Attributes    Attributes  `json:"attributes"`
-	JsonData      JsonData    `json:"jsonData"`
-	TenantId      string      `json:"tenantId"`
-	ServiceName   string      `json:"serviceName"`
-	Domain        string      `json:"domain"`
-	Params        interface{} `json:"params"`
-	ReturnRequest bool        `json:"returnRequest"`
-	Id            string      `json:"id"`
-	Type          string      `json:"type"`
-	Properties    Properties  `json:"properties"`
+	Attributes Attributes `json:"attributes"`
+	JsonData   JsonData   `json:"jsonData"`
 }
 
 type NotificationObject struct {
@@ -122,6 +114,14 @@ type NotificationObject struct {
 
 type Notification struct {
 	NotificationObject NotificationObject `json:"notificationObject"`
+	TenantId           string             `json:"tenantId"`
+	ServiceName        string             `json:"serviceName"`
+	Domain             string             `json:"domain"`
+	Params             interface{}        `json:"params"`
+	ReturnRequest      bool               `json:"returnRequest"`
+	Id                 string             `json:"id"`
+	Type               string             `json:"type"`
+	Properties         Properties         `json:"properties"`
 }
 
 type Properties struct {
@@ -258,7 +258,7 @@ func processNotification(body []byte, context executioncontext.Context) {
 		utils.PrintInfo(err.Error())
 	} else {
 		utils.PrintDebug("NotificationObject- %v\n", _message.NotificationObject)
-		tenantId := _message.NotificationObject.Data.TenantId
+		tenantId := _message.TenantId
 		userId := _message.NotificationObject.Data.JsonData.ClientState.NotificationInfo.UserId
 		if tenantId != "" || userId != "" {
 			var clientId string
