@@ -19,7 +19,9 @@ function gosockets() {
                 console.log("connect go")
             });
             socket.on('event:notification', function (data) {
-                console.log("event:notification #" + i, ++countGo)
+                if (Math.random() > 0.95) {
+                    console.log("event:notification #" + i, ++countGo)
+                }
             });
 
             socket.on('event:message', function (data) {
