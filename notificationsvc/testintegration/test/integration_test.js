@@ -25,6 +25,7 @@ let socket4 = ioClient.connect('http://localhost:5007');
 let socket5 = ioClient.connect('http://localhost:5007');
 let socket6 = ioClient.connect('http://localhost:5007');
 let socket7 = ioClient.connect('http://localhost:5007');
+let socket8 = ioClient.connect('http://localhost:5007');
 
 
 tags("notificationsvc", "socket")
@@ -254,7 +255,6 @@ tags("notificationsvc", "socket")
                     .end(function (err, res) { })
             });
         })
-
         it('business_condition_save socket should receive valid data', (done) => {
             let once = true;
             socket7.on('disconnect', function () { });
@@ -288,4 +288,38 @@ tags("notificationsvc", "socket")
                     .end(function (err, res) { })
             });
         })
+        it('config_save socket should receive valid data', (done) => {
+            let once = true;
+            socket8.on('disconnect', function () { });
+            setTimeout(() => {
+                socket8.emit("event:adduser", JSON.stringify({ userId: "rdwadmin@riversand.com_user", tenantId: "rdwengg-az-dev2" }))
+            }, 10)
+
+            socket8.once('connect', async function (args) {
+                //console.log("connect")
+            });
+
+            socket8.on('event:notification', function (data) {
+                if (once) {
+                    chai.assert(data != undefined, "failed to receive socket connection response")
+                    //chai.assert(data.description == "System Manage Complete", "config_save_failed property- description")
+                    chai.assert(data.status == "success", "config_save_failed property- status")
+                    chai.assert(data.requestStatus == "success", "config_save_failed property- requestStatus")
+                    chai.assert(data.operation == "", "config_save_failed property- operation")
+                    chai.assert(data.dataIndex == "config", "config_save_failed property- dataIndex")
+                    chai.assert(data.action == 22, "config_save_failed property- action")
+                    done();
+                    once = false
+                }
+            });
+            socket8.on('event:message', function (data) {
+                let payload = require("../testdata/config_save.json")
+                chai.request(app)
+                    .post('/api/notify')
+                    .set('Content-Type', 'application/json')
+                    .send(payload)
+                    .end(function (err, res) { })
+            });
+        })
+
     })
