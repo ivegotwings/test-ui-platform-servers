@@ -1,6 +1,7 @@
 package notification
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"io/ioutil"
@@ -245,11 +246,12 @@ func (notificationHandler *NotificationHandler) Notify(w http.ResponseWriter, r 
 	w.WriteHeader(http.StatusOK)
 	executionContext := executioncontext.GetContext(r)
 	utils.SetExecutionContext(executionContext)
-	processNotification(body, executionContext)
+	processNotification(body, executionContext, r.Context())
 }
 
-func processNotification(body []byte, context executioncontext.Context) {
-	tx := apm.DefaultTracer.StartTransaction("goroutine:processNotification", "goroutine")
+func processNotification(body []byte, context executioncontext.Context, ctx context.Context) {
+	span, ctx := apm.StartSpan(ctx, "processNotification", "function")
+	defer span.End()
 	var _message Notification
 	err := json.Unmarshal(body, &_message)
 	// defer span.End()
@@ -268,7 +270,7 @@ func processNotification(body []byte, context executioncontext.Context) {
 			if ok := utils.Contains(clientIdNotificationExlusionList, clientId); ok {
 				utils.PrintDebug("Ignoring notification for clientId: " + clientId)
 			} else {
-				err := sendNotification(_message.NotificationObject, tenantId, context, tx)
+				err := sendNotification(_message.NotificationObject, tenantId, context, ctx)
 				if err != nil {
 					utils.PrintError(err.Error())
 				}
@@ -281,9 +283,9 @@ func processNotification(body []byte, context executioncontext.Context) {
 	}
 }
 
-func sendNotification(notificationObject NotificationObject, tenantId string, context executioncontext.Context, tx *apm.Transaction) error {
+func sendNotification(notificationObject NotificationObject, tenantId string, context executioncontext.Context, ctx context.Context) error {
 	var userNotificationInfo UserNotificationInfo
-	span := tx.StartSpan("preparenotificationobject", "function", nil)
+	span, ctx := apm.StartSpan(ctx, "preparenotificationobject", "function")
 	err := prepareNotificationObject(&userNotificationInfo, notificationObject)
 	span.End()
 	if err != nil {
@@ -299,7 +301,7 @@ func sendNotification(notificationObject NotificationObject, tenantId string, co
 			"tenantId": userNotificationInfo.TenantId,
 		}
 		if userNotificationInfo.Action == actions["ModelImportComplete"] || userNotificationInfo.Action == actions["ModelImportCompletedWithErrors"] {
-			span := tx.StartSpan("getversionkey- modelimportcomplete", "function", nil)
+			span, _ := apm.StartSpan(ctx, "getversionkey- modelimportcomplete", "function")
 			versionKey, error := moduleversion.GetVersionKey(userNotificationInfo.DataIndex, "", tenantId)
 			span.End()
 			if error == nil {
@@ -318,13 +320,13 @@ func sendNotification(notificationObject NotificationObject, tenantId string, co
 			if context.UserId == "" {
 				context.UserId = "unknown"
 			}
-			span := tx.StartSpan("getdomainforentitytype", "function", nil)
+			span, ctx := apm.StartSpan(ctx, "getdomainforentitytype", "function")
 			typeDomain, err := typedomain.GetDomainForEntityType(userNotificationInfo.Context.Type, context)
 			span.End()
 			if err != nil {
 				return err
 			}
-			_span := tx.StartSpan("getversionkey- nonmodelimportcomplete", "function", nil)
+			_span, ctx := apm.StartSpan(ctx, "getversionkey- nonmodelimportcomplete", "function")
 			versionKey, error := moduleversion.GetVersionKey(userNotificationInfo.DataIndex, typeDomain, tenantId)
 			_span.End()
 			if error == nil {
@@ -339,7 +341,6 @@ func sendNotification(notificationObject NotificationObject, tenantId string, co
 			}
 		}
 	}
-	tx.End()
 	return nil
 }
 
