@@ -30,6 +30,7 @@ let socket9 = ioClient.connect('http://localhost:5007');
 let socket10 = ioClient.connect('http://localhost:5007');
 let socket11 = ioClient.connect('http://localhost:5007');
 let socket12 = ioClient.connect('http://localhost:5007');
+let socket13 = ioClient.connect('http://localhost:5007');
 
 
 tags("notificationsvc", "socket")
@@ -324,7 +325,7 @@ tags("notificationsvc", "socket")
             });
         })
         it('model_export socket should receive valid data', (done) => {
-            let once = true; socket8.on('disconnect', function () { });
+            let once = true; socket9.on('disconnect', function () { });
             setTimeout(() => {
                 socket9.emit("event:adduser", JSON.stringify({ userId: "rdwadmin@riversand.com_user", tenantId: "rdwengg-az-dev2" }))
             }, 10)
@@ -355,7 +356,7 @@ tags("notificationsvc", "socket")
             });
         })
         it('entity_export socket should receive valid data', (done) => {
-            let once = true; socket8.on('disconnect', function () { });
+            let once = true; socket10.on('disconnect', function () { });
             setTimeout(() => {
                 socket10.emit("event:adduser", JSON.stringify({ userId: "rdwadmin@riversand.com_user", tenantId: "rdwengg-az-dev2" }))
             }, 10)
@@ -386,7 +387,7 @@ tags("notificationsvc", "socket")
             });
         })
         it('wf_transition socket should receive valid data', (done) => {
-            let once = true; socket8.on('disconnect', function () { });
+            let once = true; socket11.on('disconnect', function () { });
             setTimeout(() => {
                 socket11.emit("event:adduser", JSON.stringify({ userId: "rdwadmin@riversand.com_user", tenantId: "rdwengg-az-dev2" }))
             }, 10)
@@ -417,7 +418,7 @@ tags("notificationsvc", "socket")
             });
         })
         it('wf_assignment socket should receive valid data', (done) => {
-            let once = true; socket8.on('disconnect', function () { });
+            let once = true; socket12.on('disconnect', function () { });
             setTimeout(() => {
                 socket12.emit("event:adduser", JSON.stringify({ userId: "rdwadmin@riversand.com_user", tenantId: "rdwengg-az-dev2" }))
             }, 10)
@@ -440,6 +441,52 @@ tags("notificationsvc", "socket")
             });
             socket12.on('event:message', function (data) {
                 let payload = require("../testdata/wf_assignment.json")
+                chai.request(app)
+                    .post('/api/notify')
+                    .set('Content-Type', 'application/json')
+                    .send(payload)
+                    .end(function (err, res) { })
+            });
+        })
+        it('version_increment should happen after post', (done) => {
+            let once = true; socket13.on('disconnect', function () { });
+            let version;
+            const redis = require("redis");
+            const client = redis.createClient({
+                "host": "127.0.0.1",
+                "port": 6379
+            });
+            client.on("connect", function (error) {
+                setTimeout(() => {
+                    socket13.emit("event:adduser", JSON.stringify({ userId: "rdwadmin@riversand.com_user", tenantId: "rdwengg-az-dev2" }))
+                }, 10)
+            });
+
+            socket13.once('connect', async function (args) {
+                //console.log("connect")
+            });
+
+            socket13.on('event:notification', function (data) {
+                if (once) {
+                    client.get("entityModel-default-rdwengg-az-dev2-runtime-module-version", (err, reply) => {
+                        version = reply
+                    });
+                    let payload = require("../testdata/version_increment.json")
+                    chai.request(app)
+                        .post('/api/notify')
+                        .set('Content-Type', 'application/json')
+                        .send(payload)
+                        .end(function (err, res) { })
+                    once = false
+                } else {
+                    client.get("entityModel-default-rdwengg-az-dev2-runtime-module-version", (err, reply) => {
+                        chai.assert(parseInt(reply) == (parseInt(version) + 1), "version increment failed")
+                        done();
+                    });
+                }
+            });
+            socket13.on('event:message', function (data) {
+                let payload = require("../testdata/version_increment.json")
                 chai.request(app)
                     .post('/api/notify')
                     .set('Content-Type', 'application/json')

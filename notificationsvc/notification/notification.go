@@ -468,7 +468,7 @@ func NotificationScheduler(quit chan struct{}) {
 				version, err := redis.Int(conn.Do("GET", payload.VersionKey))
 				//conn.Flush()
 				//version, err := conn.Receive()
-				if err != nil {
+				if err != nil || version == 0 {
 					utils.PrintDebug("Version Key " + payload.VersionKey + "value not found " + err.Error())
 					conn.Send("SET", payload.VersionKey, moduleversion.DEFAULT_VERSION)
 					conn.Flush()
