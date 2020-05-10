@@ -1,5 +1,10 @@
-
-var SOCKETS = 1;
+const commandLineArgs = require('command-line-args')
+const optionDefinitions = [
+    { name: 'log', alias: 'l', type: Boolean },
+    { name: 'random', alias: 'r', type: Boolean }
+]
+const options = commandLineArgs(optionDefinitions)
+var SOCKETS = 100;
 
 //go
 let countGo = 0;
@@ -19,8 +24,17 @@ function gosockets() {
                 console.log("connect go")
             });
             socket.on('event:notification', function (data) {
-                if (Math.random() > 0.95) {
-                    console.log("event:notification #" + i, ++countGo)
+                if (options.log) {
+                    if (options.random) {
+                        if (Math.random() > 0.95) {
+                            console.log("event:notification #" + i, ++countGo)
+                        }
+                    } else {
+                        console.log("event:notification #" + i, ++countGo)
+                    }
+                }
+                if (options.log) {
+
                 }
             });
 

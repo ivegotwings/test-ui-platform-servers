@@ -9,8 +9,12 @@ Integration Tests-(vpn connected)
 Concurrency Tests-(vpn connected)
     cd notificationsvc
     bash run_development
+    modify sockets variable to number of sockets to connect say 10
+    run testintegration/socket.js 
+        node socket -l(full log)
+        node socket -l -r(random log)
+        node socket(no log)
     start jmeter
     open concurrency jmx file in jmeter 
     set user defined variable scale to 1000, and hit enter
-    run testdata/socket.js and connect atleast 10 sockets
     observe notification are coming
