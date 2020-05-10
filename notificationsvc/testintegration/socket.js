@@ -4,7 +4,7 @@ const optionDefinitions = [
     { name: 'random', alias: 'r', type: Boolean }
 ]
 const options = commandLineArgs(optionDefinitions)
-var SOCKETS = 100;
+var SOCKETS = 10;
 
 //go
 let countGo = 0;

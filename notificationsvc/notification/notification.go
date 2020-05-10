@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"errors"
 	"io/ioutil"
+	"math/rand"
 	"net/http"
+	"runtime"
 	"strconv"
 	"strings"
 
@@ -209,8 +211,6 @@ var dataIndexMapping = map[string]string{
 
 var clientIdNotificationExlusionList = []string{"healthcheckClient"}
 
-var redisBroadCastAdaptor *connection.Broadcast
-
 type NotificationHandler struct {
 }
 
@@ -220,18 +220,30 @@ type NotificationPayload struct {
 	VersionKey           string
 }
 
-var NotificationPayloadChannel = make(chan NotificationPayload)
+// var NotificationPayloadChannel = make(chan NotificationPayload)
 
-func SetRedisBroadCastAdaptor(adaptor *connection.Broadcast) {
-	redisBroadCastAdaptor = adaptor
-	var quit = make(chan struct{})
+var NUM_WORKER int = 1
+
+type Worker struct {
+	NotificationPayloadChannel chan NotificationPayload
+}
+
+var Workers []*Worker = make([]*Worker, NUM_WORKER)
+
+func SetRedisBroadCastAdaptor(opts map[string]string) {
 	defer func() {
 		if err := recover(); err != nil {
 			utils.PrintError(err.(string))
 		}
 	}()
-	go NotificationScheduler(quit)
-
+	for i := 0; i < NUM_WORKER; i++ {
+		w := &Worker{
+			NotificationPayloadChannel: make(chan NotificationPayload),
+		}
+		Workers[i] = w
+		redisBroadCastAdaptor := connection.Redis(opts)
+		go w.NotificationScheduler(redisBroadCastAdaptor)
+	}
 }
 
 func (notificationHandler *NotificationHandler) Notify(w http.ResponseWriter, r *http.Request) {
@@ -310,7 +322,8 @@ func sendNotification(notificationObject NotificationObject, tenantId string, co
 			versionKey, error := moduleversion.GetVersionKey(userNotificationInfo.DataIndex, "", tenantId)
 			span.End()
 			if error == nil {
-				NotificationPayloadChannel <- NotificationPayload{
+				worker := Workers[(rand.Int())%NUM_WORKER]
+				worker.NotificationPayloadChannel <- NotificationPayload{
 					VersionKey:           versionKey,
 					UserNotificationInfo: userNotificationInfo,
 					UserInfo:             userInfo,
@@ -335,7 +348,8 @@ func sendNotification(notificationObject NotificationObject, tenantId string, co
 			versionKey, error := moduleversion.GetVersionKey(userNotificationInfo.DataIndex, typeDomain, tenantId)
 			_span.End()
 			if error == nil {
-				NotificationPayloadChannel <- NotificationPayload{
+				worker := Workers[(rand.Int())%NUM_WORKER]
+				worker.NotificationPayloadChannel <- NotificationPayload{
 					VersionKey:           versionKey,
 					UserNotificationInfo: userNotificationInfo,
 					UserInfo:             userInfo,
@@ -461,10 +475,10 @@ func prepareNotificationObject(userNotificationInfo *UserNotificationInfo, notif
 	return err
 }
 
-func NotificationScheduler(quit chan struct{}) {
+func (w *Worker) NotificationScheduler(redisBroadCastAdaptor *connection.Broadcast) {
 	for {
 		select {
-		case payload := <-NotificationPayloadChannel:
+		case payload := <-w.NotificationPayloadChannel:
 			{
 				tx := apm.DefaultTracer.StartTransaction("goroutine:socketpayload", "goroutine")
 				span := tx.StartSpan("versionkey update", "function", nil)
@@ -505,8 +519,8 @@ func NotificationScheduler(quit chan struct{}) {
 				_span.End()
 				tx.End()
 			}
-		case <-quit:
-			return
+		default:
+			runtime.Gosched()
 		}
 	}
 }

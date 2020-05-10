@@ -467,22 +467,28 @@ tags("notificationsvc", "socket")
             });
 
             socket13.on('event:notification', function (data) {
+                let version, reply;
                 if (once) {
                     client.get("entityModel-default-rdwengg-az-dev2-runtime-module-version", (err, reply) => {
                         version = reply
+                        //console.log("1 version ", version)
+                        let payload = require("../testdata/version_increment.json")
+                        chai.request(app)
+                            .post('/api/notify')
+                            .set('Content-Type', 'application/json')
+                            .send(payload)
+                            .end(function (err, res) { })
                     });
-                    let payload = require("../testdata/version_increment.json")
-                    chai.request(app)
-                        .post('/api/notify')
-                        .set('Content-Type', 'application/json')
-                        .send(payload)
-                        .end(function (err, res) { })
+                    setTimeout(() => {
+                        client.get("entityModel-default-rdwengg-az-dev2-runtime-module-version", (err, _reply) => {
+                            reply = _reply
+                            //console.log("2 version", version, reply)
+                            chai.assert(parseInt(reply) == (parseInt(version) + 1), "version increment failed")
+                            socket13.close()
+                            done()
+                        });
+                    }, 1000)
                     once = false
-                } else {
-                    client.get("entityModel-default-rdwengg-az-dev2-runtime-module-version", (err, reply) => {
-                        chai.assert(parseInt(reply) == (parseInt(version) + 1), "version increment failed")
-                        done();
-                    });
                 }
             });
             socket13.on('event:message', function (data) {

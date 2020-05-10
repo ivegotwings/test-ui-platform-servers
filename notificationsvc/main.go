@@ -101,7 +101,7 @@ func main() {
 		//pm2io.Notifier.Error(err)
 		panic(err)
 	}
-	notification.SetRedisBroadCastAdaptor(&redisBroadCastAdaptor)
+	notification.SetRedisBroadCastAdaptor(opts)
 
 	server.OnConnect("", func(so socketio.Conn) error {
 		so.SetContext("")
