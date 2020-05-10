@@ -225,6 +225,11 @@ var NotificationPayloadChannel = make(chan NotificationPayload)
 func SetRedisBroadCastAdaptor(adaptor *connection.Broadcast) {
 	redisBroadCastAdaptor = adaptor
 	var quit = make(chan struct{})
+	defer func() {
+		if err := recover(); err != nil {
+			utils.PrintError(err.(string))
+		}
+	}()
 	go NotificationScheduler(quit)
 
 }
@@ -469,7 +474,7 @@ func NotificationScheduler(quit chan struct{}) {
 				//conn.Flush()
 				//version, err := conn.Receive()
 				if err != nil || version == 0 {
-					utils.PrintDebug("Version Key " + payload.VersionKey + "value not found " + err.Error())
+					utils.PrintDebug("Version Key " + payload.VersionKey + "value not found ")
 					conn.Send("SET", payload.VersionKey, moduleversion.DEFAULT_VERSION)
 					conn.Flush()
 					version = int(moduleversion.DEFAULT_VERSION)
