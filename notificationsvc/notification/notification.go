@@ -245,7 +245,7 @@ func (notificationHandler *NotificationHandler) Notify(w http.ResponseWriter, r 
 	w.WriteHeader(http.StatusOK)
 	executionContext := executioncontext.GetContext(r)
 	utils.SetExecutionContext(executionContext)
-	go processNotification(body, executionContext)
+	processNotification(body, executionContext)
 }
 
 func processNotification(body []byte, context executioncontext.Context) {
