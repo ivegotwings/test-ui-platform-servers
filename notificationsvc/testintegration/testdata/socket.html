@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+    <script>
+      var socket = io("http://127.0.0.1:5007", {
+            "force new connection": true,
+            "reconnection": true,
+            "reconnectionDelay": 2000,                  //starts with 2 secs delay, then 4, 6, 8, until 60 where it stays forever until it reconnects
+            "reconnectionDelayMax": 60000,             //1 minute maximum delay between connections
+            "reconnectionAttempts": "Infinity",         //to prevent dead clients, having the user to having to manually reconnect after a server restart.
+            "timeout": 10000,                           //before connect_error and connect_timeout are emitted.
+            "transports": ["websocket", "polling"]     //forces the transport to be only websocket as priority. Server needs to be setup as well/
+
+      });
+      socket.emit('event:newuser', {userId: "test"});
+      // var s2 = io("/chat");
+      // socket.on('reply', function(msg){
+      //   $('#messages').append($('<li>').text(msg));
+      // });
+      // $('form').submit(function(){
+      //   s2.emit('msg', $('#m').val(), function(data){
+      //     $('#messages').append($('<li>').text('ACK CALLBACK: ' + data));
+      //   });
+      //   socket.emit('notice', $('#m').val());
+      //   $('#m').val('');
+      //   return false;
+      // });
+    </script>
+</body>
+</html>
