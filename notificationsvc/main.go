@@ -26,7 +26,6 @@ type Config struct {
 		Host string
 		Port string
 	}
-	NotificationInterval uint
 }
 
 func LoadConfiguration(file string) Config {
@@ -102,7 +101,7 @@ func main() {
 		//pm2io.Notifier.Error(err)
 		panic(err)
 	}
-	notification.SetRedisBroadCastAdaptor(&redisBroadCastAdaptor, config.NotificationInterval)
+	notification.SetRedisBroadCastAdaptor(&redisBroadCastAdaptor)
 
 	server.OnConnect("", func(so socketio.Conn) error {
 		so.SetContext("")

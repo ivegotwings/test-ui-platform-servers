@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
-	"time"
 
 	"ui-platform-servers/notificationsvc/connection"
 	"ui-platform-servers/notificationsvc/executioncontext"
@@ -222,11 +221,10 @@ type NotificationPayload struct {
 
 var NotificationPayloadChannel = make(chan NotificationPayload)
 
-func SetRedisBroadCastAdaptor(adaptor *connection.Broadcast, interval uint) {
+func SetRedisBroadCastAdaptor(adaptor *connection.Broadcast) {
 	redisBroadCastAdaptor = adaptor
 	var quit = make(chan struct{})
-	var ticker *time.Ticker = time.NewTicker(time.Duration(interval) * time.Millisecond)
-	go NotificationScheduler(ticker, quit)
+	go NotificationScheduler(quit)
 
 }
 
@@ -305,12 +303,10 @@ func sendNotification(notificationObject NotificationObject, tenantId string, co
 			versionKey, error := moduleversion.GetVersionKey(userNotificationInfo.DataIndex, "", tenantId)
 			span.End()
 			if error == nil {
-				if _, ok := (<-NotificationPayloadChannel); ok {
-					NotificationPayloadChannel <- NotificationPayload{
-						VersionKey:           versionKey,
-						UserNotificationInfo: userNotificationInfo,
-						UserInfo:             userInfo,
-					}
+				NotificationPayloadChannel <- NotificationPayload{
+					VersionKey:           versionKey,
+					UserNotificationInfo: userNotificationInfo,
+					UserInfo:             userInfo,
 				}
 			} else {
 				return errors.New("sendNotification- cannot get VersionKey")
@@ -459,54 +455,49 @@ func prepareNotificationObject(userNotificationInfo *UserNotificationInfo, notif
 	return err
 }
 
-func NotificationScheduler(ticker *time.Ticker, quit chan struct{}) {
+func NotificationScheduler(quit chan struct{}) {
 	for {
 		select {
-		case <-ticker.C:
-			if _, ok := (<-NotificationPayloadChannel); ok {
-				for payload := range NotificationPayloadChannel {
-					tx := apm.DefaultTracer.StartTransaction("goroutine:socketpayload", "goroutine")
-					span := tx.StartSpan("versionkey update", "function", nil)
-					var uniqueVersionKeys = map[string]string{}
-					if uniqueVersionKeys[payload.VersionKey] != "done" {
-						uniqueVersionKeys[payload.VersionKey] = "done"
-						conn := *state.Conn()
-						version, err := redis.Int(conn.Do("GET", payload.VersionKey))
-						//conn.Flush()
-						//version, err := conn.Receive()
-						if err != nil {
-							utils.PrintDebug("Version Key " + payload.VersionKey + "value not found " + err.Error())
-							conn.Send("SET", payload.VersionKey, moduleversion.DEFAULT_VERSION)
-							conn.Flush()
-							version = int(moduleversion.DEFAULT_VERSION)
-						}
-						if version != 0 {
-							utils.PrintDebug("MotificationScheduler versionKey version %s %s", payload.VersionKey, version)
-							var newversion uint8
-							_version := uint8(version)
-							newversion = _version + 1
-							conn.Send("SET", payload.VersionKey, newversion)
-							conn.Flush()
-						} else {
-							//error
-							utils.PrintDebug("Version Key " + payload.VersionKey + "has invalid value- " + strconv.Itoa(version))
-						}
+		case payload := <-NotificationPayloadChannel:
+			{
+				tx := apm.DefaultTracer.StartTransaction("goroutine:socketpayload", "goroutine")
+				span := tx.StartSpan("versionkey update", "function", nil)
 
-					}
-					span.End()
-					_span := tx.StartSpan("socket.io", "function", nil)
-					var room string
-					if payload.UserInfo["tenantId"] != "" && payload.UserInfo["userId"] != "" {
-						room = "socket_conn_room_tenant_" + payload.UserInfo["tenantId"] + "_user_" + payload.UserInfo["userId"]
-						utils.PrintDebug("Broadcasting to room: $s", room)
-						redisBroadCastAdaptor.Send(nil, room, "event:notification", payload.UserNotificationInfo)
-					} else if payload.UserInfo["tenantId"] != "" {
-						room = "socket_conn_room_tenant_" + payload.UserInfo["tenantId"]
-						redisBroadCastAdaptor.Send(nil, room, "event:notification", payload.UserNotificationInfo)
-					}
-					_span.End()
-					tx.End()
+				conn := *state.Conn()
+				version, err := redis.Int(conn.Do("GET", payload.VersionKey))
+				//conn.Flush()
+				//version, err := conn.Receive()
+				if err != nil {
+					utils.PrintDebug("Version Key " + payload.VersionKey + "value not found " + err.Error())
+					conn.Send("SET", payload.VersionKey, moduleversion.DEFAULT_VERSION)
+					conn.Flush()
+					version = int(moduleversion.DEFAULT_VERSION)
 				}
+				if version != 0 {
+					utils.PrintDebug("MotificationScheduler versionKey version %s %s", payload.VersionKey, version)
+					var newversion uint8
+					_version := uint8(version)
+					newversion = _version + 1
+					conn.Send("SET", payload.VersionKey, newversion)
+					conn.Flush()
+				} else {
+					//error
+					utils.PrintDebug("Version Key " + payload.VersionKey + "has invalid value- " + strconv.Itoa(version))
+				}
+
+				span.End()
+				_span := tx.StartSpan("socket.io", "function", nil)
+				var room string
+				if payload.UserInfo["tenantId"] != "" && payload.UserInfo["userId"] != "" {
+					room = "socket_conn_room_tenant_" + payload.UserInfo["tenantId"] + "_user_" + payload.UserInfo["userId"]
+					utils.PrintDebug("Broadcasting to room: $s", room)
+					redisBroadCastAdaptor.Send(nil, room, "event:notification", payload.UserNotificationInfo)
+				} else if payload.UserInfo["tenantId"] != "" {
+					room = "socket_conn_room_tenant_" + payload.UserInfo["tenantId"]
+					redisBroadCastAdaptor.Send(nil, room, "event:notification", payload.UserNotificationInfo)
+				}
+				_span.End()
+				tx.End()
 			}
 		case <-quit:
 			return
