@@ -1,6 +1,7 @@
 package connection
 
 import (
+	"fmt"
 	"ui-platform-servers/notificationsvc/cmap_string_socket"
 	"ui-platform-servers/notificationsvc/utils"
 
@@ -74,7 +75,7 @@ func Redis(opts map[string]string) Broadcast {
 
 	b.remote = false
 
-	b.sub.PSubscribe(b.prefix + "#*")
+	b.sub.PSubscribe(b.prefix + "#" + b.uid)
 
 	// This goroutine receives and prints pushed notifications from the server.
 	// The goroutine exits when there is an error.
@@ -143,6 +144,8 @@ func (b Broadcast) onmessage(channel string, data []byte) error {
 	return nil
 }
 
+var count int = 0
+
 func (b Broadcast) Join(room string, socket socketio.Conn) error {
 	sockets, ok := rooms.Get(room)
 	if !ok {
@@ -155,7 +158,9 @@ func (b Broadcast) Join(room string, socket socketio.Conn) error {
 	s.Join(room)
 	sockets.Set(socket.ID(), &_socket)
 	rooms.Set(room, sockets)
-
+	count++
+	fmt.Println("joins- ", count, room)
+	fmt.Println(rooms.Count())
 	return nil
 }
 
