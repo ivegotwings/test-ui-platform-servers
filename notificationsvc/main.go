@@ -14,7 +14,6 @@ import (
 	"ui-platform-servers/notificationsvc/connection"
 	"ui-platform-servers/notificationsvc/moduleversion"
 	"ui-platform-servers/notificationsvc/notification"
-	"ui-platform-servers/notificationsvc/state"
 	"ui-platform-servers/notificationsvc/utils"
 
 	socketio "github.com/googollee/go-socket.io"
@@ -94,13 +93,7 @@ func main() {
 	opts["host"] = config.Redis.Host
 	opts["port"] = config.Redis.Port
 	//notifiy channel
-	redisBroadCastAdaptor = *connection.Redis(opts)
-	//state channel
-	err = state.Connect(opts)
-	if err != nil {
-		//pm2io.Notifier.Error(err)
-		panic(err)
-	}
+	redisBroadCastAdaptor = connection.Redis(opts)
 	notification.SetRedisBroadCastAdaptor(opts)
 
 	server.OnConnect("", func(so socketio.Conn) error {

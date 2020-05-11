@@ -8,9 +8,8 @@ import (
 	"github.com/garyburd/redigo/redis"
 )
 
-var conn redis.Conn
-
-func Connect(opts map[string]string) error {
+func Connect(opts map[string]string) (redis.Conn, error) {
+	var conn redis.Conn
 	var ok bool
 	var err error
 	var host, port string
@@ -23,14 +22,13 @@ func Connect(opts map[string]string) error {
 		port = "6379"
 	}
 	conn, err = redis.Dial("tcp", host+":"+port)
-
 	if err != nil {
 		utils.PrintError("state- unable to connect to redis")
-		return errors.New("state- unable to connect to redis")
+		return nil, errors.New("state- unable to connect to redis")
 	}
-	return nil
+	return conn, nil
 }
 
-func Conn() *redis.Conn {
-	return &conn
-}
+// func Conn() *redis.Conn {
+// 	return &conn
+// }

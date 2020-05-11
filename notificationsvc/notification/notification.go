@@ -222,7 +222,7 @@ type NotificationPayload struct {
 
 // var NotificationPayloadChannel = make(chan NotificationPayload)
 
-var NUM_WORKER int = 1
+var NUM_WORKER int = 10
 
 type Worker struct {
 	NotificationPayloadChannel chan NotificationPayload
@@ -237,12 +237,15 @@ func SetRedisBroadCastAdaptor(opts map[string]string) {
 		}
 	}()
 	for i := 0; i < NUM_WORKER; i++ {
-		w := &Worker{
+		w := Worker{
 			NotificationPayloadChannel: make(chan NotificationPayload),
 		}
-		Workers[i] = w
+		Workers[i] = &w
 		redisBroadCastAdaptor := connection.Redis(opts)
-		go w.NotificationScheduler(redisBroadCastAdaptor)
+		conn, _err := state.Connect(opts)
+		if _err == nil {
+			go w.NotificationScheduler(redisBroadCastAdaptor, conn)
+		}
 	}
 }
 
@@ -475,7 +478,7 @@ func prepareNotificationObject(userNotificationInfo *UserNotificationInfo, notif
 	return err
 }
 
-func (w *Worker) NotificationScheduler(redisBroadCastAdaptor *connection.Broadcast) {
+func (w *Worker) NotificationScheduler(redisBroadCastAdaptor connection.Broadcast, conn redis.Conn) {
 	for {
 		select {
 		case payload := <-w.NotificationPayloadChannel:
@@ -483,7 +486,6 @@ func (w *Worker) NotificationScheduler(redisBroadCastAdaptor *connection.Broadca
 				tx := apm.DefaultTracer.StartTransaction("goroutine:socketpayload", "goroutine")
 				span := tx.StartSpan("versionkey update", "function", nil)
 
-				conn := *state.Conn()
 				version, err := redis.Int(conn.Do("GET", payload.VersionKey))
 				//conn.Flush()
 				//version, err := conn.Receive()

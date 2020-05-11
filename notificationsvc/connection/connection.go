@@ -23,8 +23,9 @@ type Broadcast struct {
 	uid    string
 	key    string
 	remote bool
-	rooms  cmap_string_cmap.ConcurrentMap
 }
+
+var rooms = cmap_string_cmap.New()
 
 //
 // opts: {
@@ -32,10 +33,8 @@ type Broadcast struct {
 //   "port": "6379"
 //   "prefix": "socket.io"
 // }
-func Redis(opts map[string]string) *Broadcast {
-	b := Broadcast{
-		rooms: cmap_string_cmap.New(),
-	}
+func Redis(opts map[string]string) Broadcast {
+	b := Broadcast{}
 
 	var ok bool
 	b.host, ok = opts["host"]
@@ -68,7 +67,7 @@ func Redis(opts map[string]string) *Broadcast {
 	uid, err := uuid.NewV4()
 	if err != nil {
 		utils.Println("", "", "connection.go", "", "error generating uid: "+err.Error(), "", nil)
-		return nil
+		panic(err)
 	}
 	b.uid = uid.String()
 	b.key = b.prefix + "#" + b.uid
@@ -99,7 +98,7 @@ func Redis(opts map[string]string) *Broadcast {
 		}
 	}()
 
-	return &b
+	return b
 }
 
 func (b Broadcast) onmessage(channel string, data []byte) error {
@@ -145,7 +144,7 @@ func (b Broadcast) onmessage(channel string, data []byte) error {
 }
 
 func (b Broadcast) Join(room string, socket socketio.Conn) error {
-	sockets, ok := b.rooms.Get(room)
+	sockets, ok := rooms.Get(room)
 	if !ok {
 		sockets = cmap_string_socket.New()
 	}
@@ -155,7 +154,7 @@ func (b Broadcast) Join(room string, socket socketio.Conn) error {
 	s := *_socket.Socket
 	s.Join(room)
 	sockets.Set(socket.ID(), &_socket)
-	b.rooms.Set(room, sockets)
+	rooms.Set(room, sockets)
 
 	return nil
 }
@@ -165,16 +164,16 @@ func (b Broadcast) Leave(socket socketio.Conn) {
 	var ok bool
 	var room string
 	if room == "" {
-		for t := range b.rooms.Iter() {
-			sockets, ok = b.rooms.Get(t.Key)
+		for t := range rooms.Iter() {
+			sockets, ok = rooms.Get(t.Key)
 			if sockets.Has(socket.ID()) && ok {
 				room = t.Key
 				utils.PrintDebug("removing socket with id from room %s %s", socket.ID(), room)
 				sockets.Remove(socket.ID())
 				if sockets.IsEmpty() {
-					b.rooms.Remove(room)
+					rooms.Remove(room)
 				} else {
-					b.rooms.Set(room, sockets)
+					rooms.Set(room, sockets)
 				}
 			}
 		}
@@ -202,7 +201,7 @@ func (b Broadcast) Send(ignore socketio.Conn, room, message string, args ...inte
 	return nil
 }
 func (b Broadcast) SendSocket(ignore socketio.Conn, room, message string, args ...interface{}) error {
-	_sockets, ok := b.rooms.Get(room)
+	_sockets, ok := rooms.Get(room)
 	if ok {
 		for item := range _sockets.Iter() {
 			id := item.Key
