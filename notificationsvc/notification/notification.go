@@ -4,9 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"math/rand"
 	"net/http"
+	"os"
 	"runtime"
 	"strconv"
 	"strings"
@@ -222,13 +224,13 @@ type NotificationPayload struct {
 
 // var NotificationPayloadChannel = make(chan NotificationPayload)
 
-var NUM_WORKER int = 10
+var NUM_WORKER int
 
 type Worker struct {
 	NotificationPayloadChannel chan NotificationPayload
 }
 
-var Workers []*Worker = make([]*Worker, NUM_WORKER)
+var Workers []*Worker
 
 func SetRedisBroadCastAdaptor(opts map[string]string) {
 	defer func() {
@@ -236,6 +238,13 @@ func SetRedisBroadCastAdaptor(opts map[string]string) {
 			utils.PrintError(err.(string))
 		}
 	}()
+	var _err error
+	NUM_WORKER, _err = strconv.Atoi(os.Getenv("WORKERS"))
+	if _err != nil || NUM_WORKER == 0 {
+		fmt.Println(_err)
+		NUM_WORKER = 1
+	}
+	Workers = make([]*Worker, NUM_WORKER)
 	for i := 0; i < NUM_WORKER; i++ {
 		w := Worker{
 			NotificationPayloadChannel: make(chan NotificationPayload),
@@ -325,6 +334,7 @@ func sendNotification(notificationObject NotificationObject, tenantId string, co
 			versionKey, error := moduleversion.GetVersionKey(userNotificationInfo.DataIndex, "", tenantId)
 			span.End()
 			if error == nil {
+				fmt.Println()
 				worker := Workers[(rand.Int())%NUM_WORKER]
 				worker.NotificationPayloadChannel <- NotificationPayload{
 					VersionKey:           versionKey,
