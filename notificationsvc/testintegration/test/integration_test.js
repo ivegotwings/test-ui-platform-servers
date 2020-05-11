@@ -18,6 +18,7 @@ tags("notificationsvc", "api")
         })
     })
 var ioClient = require('socket.io-client')
+let socket0 = ioClient.connect('http://localhost:5007');
 let socket1 = ioClient.connect('http://localhost:5007');
 let socket2 = ioClient.connect('http://localhost:5007');
 let socket3 = ioClient.connect('http://localhost:5007');
@@ -38,14 +39,14 @@ tags("notificationsvc", "socket")
         it('socket should receive connection message', (done) => {
             let once = true
             setTimeout(() => {
-                socket1.emit("event:adduser", JSON.stringify({ userId: "rdwadmin@riversand.com_user", tenantId: "rdwengg-az-dev2" }))
+                socket0.emit("event:adduser", JSON.stringify({ userId: "rdwadmin@riversand.com_user", tenantId: "rdwengg-az-dev2" }))
             }, 10)
 
-            socket1.on('disconnect', function () { });
-            socket1.once('connect', function (args) {
+            socket0.on('disconnect', function () { });
+            socket0.once('connect', function (args) {
                 // console.log("connect")
             });
-            socket1.on('event:message', function (data) {
+            socket0.on('event:message', function (data) {
                 chai.assert(data != undefined, "failed to receive socket connection response")
                 if (once) {
                     done()
@@ -55,16 +56,16 @@ tags("notificationsvc", "socket")
         })
         it('notify should eco valid data', (done) => {
             let once = true;
-            socket2.on('disconnect', function () { });
+            socket1.on('disconnect', function () { });
             setTimeout(() => {
-                socket2.emit("event:adduser", JSON.stringify({ userId: "rdwadmin@riversand.com_user", tenantId: "rdwengg-az-dev2" }))
+                socket1.emit("event:adduser", JSON.stringify({ userId: "rdwadmin@riversand.com_user", tenantId: "rdwengg-az-dev2" }))
             }, 10)
 
-            socket2.once('connect', async function (args) {
+            socket1.once('connect', async function (args) {
                 //console.log("connect")
             });
 
-            socket2.on('event:notification', function (data) {
+            socket1.on('event:notification', function (data) {
                 if (once) {
                     chai.assert(data != undefined, "failed to receive socket connection response")
                     chai.assert(data.showNotificationToUser == false, "echo_failed property- showNotificationToUser")
@@ -85,7 +86,7 @@ tags("notificationsvc", "socket")
                     once = false
                 }
             });
-            socket2.on('event:message', function (data) {
+            socket1.on('event:message', function (data) {
                 let payload = require("../testdata/model_save_complete.json")
                 chai.request(app)
                     .post('/api/notify')
