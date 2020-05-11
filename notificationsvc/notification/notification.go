@@ -6,6 +6,7 @@ import (
 	"errors"
 	"io/ioutil"
 	"net/http"
+	"runtime"
 	"strconv"
 	"strings"
 
@@ -507,6 +508,8 @@ func NotificationScheduler(quit chan struct{}) {
 			}
 		case <-quit:
 			return
+		default:
+			runtime.Gosched()
 		}
 	}
 }
