@@ -171,10 +171,9 @@ func (b Broadcast) Leave(socket socketio.Conn) {
 				room = t.Key
 				utils.PrintDebug("removing socket with id from room %s %s", socket.ID(), room)
 				sockets.Remove(socket.ID())
+				b.rooms.Set(room, sockets)
 				if sockets.IsEmpty() {
-					b.rooms.Remove(room)
-				} else {
-					b.rooms.Set(room, sockets)
+					utils.PrintDebug("no sockets, empty room %s", room)
 				}
 			}
 		}
