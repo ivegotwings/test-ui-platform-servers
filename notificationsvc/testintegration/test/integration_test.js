@@ -18,29 +18,15 @@ tags("notificationsvc", "api")
         })
     })
 var ioClient = require('socket.io-client')
-let socket0 = ioClient.connect('http://localhost:5007');
-let socket1 = ioClient.connect('http://localhost:5007');
-let socket2 = ioClient.connect('http://localhost:5007');
-let socket3 = ioClient.connect('http://localhost:5007');
-let socket4 = ioClient.connect('http://localhost:5007');
-let socket5 = ioClient.connect('http://localhost:5007');
-let socket6 = ioClient.connect('http://localhost:5007');
-let socket7 = ioClient.connect('http://localhost:5007');
-let socket8 = ioClient.connect('http://localhost:5007');
-let socket9 = ioClient.connect('http://localhost:5007');
-let socket10 = ioClient.connect('http://localhost:5007');
-let socket11 = ioClient.connect('http://localhost:5007');
-let socket12 = ioClient.connect('http://localhost:5007');
-let socket13 = ioClient.connect('http://localhost:5007');
-
 
 tags("notificationsvc", "socket")
     .describe("notification", () => {
         it('socket should receive connection message', (done) => {
+            let socket0 = ioClient.connect('http://localhost:5007');
             let once = true
             setTimeout(() => {
                 socket0.emit("event:adduser", JSON.stringify({ userId: "rdwadmin@riversand.com_user", tenantId: "rdwengg-az-dev2" }))
-            }, 10)
+            }, 100)
 
             socket0.on('disconnect', function () { });
             socket0.once('connect', function (args) {
@@ -55,11 +41,12 @@ tags("notificationsvc", "socket")
             });
         })
         it('notify should eco valid data', (done) => {
+            let socket1 = ioClient.connect('http://localhost:5007');
             let once = true;
             socket1.on('disconnect', function () { });
             setTimeout(() => {
                 socket1.emit("event:adduser", JSON.stringify({ userId: "rdwadmin@riversand.com_user", tenantId: "rdwengg-az-dev2" }))
-            }, 10)
+            }, 100)
 
             socket1.once('connect', async function (args) {
                 //console.log("connect")
@@ -96,11 +83,12 @@ tags("notificationsvc", "socket")
             });
         })
         it('model_save_complete socket should receive valid data', (done) => {
+            let socket2 = ioClient.connect('http://localhost:5007');
             let once = true;
             socket2.on('disconnect', function () { });
             setTimeout(() => {
                 socket2.emit("event:adduser", JSON.stringify({ userId: "rdwadmin@riversand.com_user", tenantId: "rdwengg-az-dev2" }))
-            }, 10)
+            }, 100)
 
             socket2.once('connect', async function (args) {
                 //console.log("connect")
@@ -130,11 +118,12 @@ tags("notificationsvc", "socket")
             });
         })
         it('workflow_transition socket should receive valid data', (done) => {
+            let socket3 = ioClient.connect('http://localhost:5007');
             let once = true;
             socket3.on('disconnect', function () { });
             setTimeout(() => {
                 socket3.emit("event:adduser", JSON.stringify({ userId: "rdwadmin@riversand.com_user", tenantId: "rdwengg-az-dev2" }))
-            }, 10)
+            }, 100)
 
             socket3.once('connect', async function (args) {
                 //console.log("connect")
@@ -163,11 +152,12 @@ tags("notificationsvc", "socket")
             });
         })
         it('workflow_assignment socket should receive valid data', (done) => {
+            let socket4 = ioClient.connect('http://localhost:5007');
             let once = true;
             socket4.on('disconnect', function () { });
             setTimeout(() => {
                 socket4.emit("event:adduser", JSON.stringify({ userId: "rdwadmin@riversand.com_user", tenantId: "rdwengg-az-dev2" }))
-            }, 10)
+            }, 100)
 
             socket4.once('connect', async function (args) {
                 //console.log("connect")
@@ -196,11 +186,12 @@ tags("notificationsvc", "socket")
             });
         })
         it('entity_update socket should receive valid data', (done) => {
+            let socket5 = ioClient.connect('http://localhost:5007');
             let once = true;
             socket5.on('disconnect', function () { });
             setTimeout(() => {
                 socket5.emit("event:adduser", JSON.stringify({ userId: "rdwadmin@riversand.com_user", tenantId: "rdwengg-az-dev2" }))
-            }, 10)
+            }, 100)
 
             socket5.once('connect', async function (args) {
                 //console.log("connect")
@@ -229,11 +220,12 @@ tags("notificationsvc", "socket")
             });
         })
         it('model_import socket should receive valid data', (done) => {
+            let socket6 = ioClient.connect('http://localhost:5007');
             let once = true;
             socket6.on('disconnect', function () { });
             setTimeout(() => {
                 socket6.emit("event:adduser", JSON.stringify({ userId: "rdwadmin@riversand.com_user", tenantId: "rdwengg-az-dev2" }))
-            }, 10)
+            }, 100)
 
             socket6.once('connect', async function (args) {
                 //console.log("connect")
@@ -262,11 +254,12 @@ tags("notificationsvc", "socket")
             });
         })
         it('business_condition_save socket should receive valid data', (done) => {
+            let socket7 = ioClient.connect('http://localhost:5007');
             let once = true;
             socket7.on('disconnect', function () { });
             setTimeout(() => {
                 socket7.emit("event:adduser", JSON.stringify({ userId: "rdwadmin@riversand.com_user", tenantId: "rdwengg-az-dev2" }))
-            }, 10)
+            }, 100)
 
             socket7.once('connect', async function (args) {
                 //console.log("connect")
@@ -295,10 +288,11 @@ tags("notificationsvc", "socket")
             });
         })
         it('config_save socket should receive valid data', (done) => {
+            let socket8 = ioClient.connect('http://localhost:5007');
             let once = true; socket8.on('disconnect', function () { });
             setTimeout(() => {
                 socket8.emit("event:adduser", JSON.stringify({ userId: "rdwadmin@riversand.com_user", tenantId: "rdwengg-az-dev2" }))
-            }, 10)
+            }, 100)
 
             socket8.once('connect', async function (args) {
                 //console.log("connect")
@@ -326,10 +320,11 @@ tags("notificationsvc", "socket")
             });
         })
         it('model_export socket should receive valid data', (done) => {
+            let socket9 = ioClient.connect('http://localhost:5007');
             let once = true; socket9.on('disconnect', function () { });
             setTimeout(() => {
                 socket9.emit("event:adduser", JSON.stringify({ userId: "rdwadmin@riversand.com_user", tenantId: "rdwengg-az-dev2" }))
-            }, 10)
+            }, 100)
 
             socket9.once('connect', async function (args) {
                 //console.log("connect")
@@ -357,10 +352,11 @@ tags("notificationsvc", "socket")
             });
         })
         it('entity_export socket should receive valid data', (done) => {
+            let socket10 = ioClient.connect('http://localhost:5007');
             let once = true; socket10.on('disconnect', function () { });
             setTimeout(() => {
                 socket10.emit("event:adduser", JSON.stringify({ userId: "rdwadmin@riversand.com_user", tenantId: "rdwengg-az-dev2" }))
-            }, 10)
+            }, 100)
 
             socket10.once('connect', async function (args) {
                 //console.log("connect")
@@ -388,10 +384,11 @@ tags("notificationsvc", "socket")
             });
         })
         it('wf_transition socket should receive valid data', (done) => {
+            let socket11 = ioClient.connect('http://localhost:5007');
             let once = true; socket11.on('disconnect', function () { });
             setTimeout(() => {
                 socket11.emit("event:adduser", JSON.stringify({ userId: "rdwadmin@riversand.com_user", tenantId: "rdwengg-az-dev2" }))
-            }, 10)
+            }, 100)
 
             socket11.once('connect', async function (args) {
                 //console.log("connect")
@@ -419,10 +416,11 @@ tags("notificationsvc", "socket")
             });
         })
         it('wf_assignment socket should receive valid data', (done) => {
+            let socket12 = ioClient.connect('http://localhost:5007');
             let once = true; socket12.on('disconnect', function () { });
             setTimeout(() => {
                 socket12.emit("event:adduser", JSON.stringify({ userId: "rdwadmin@riversand.com_user", tenantId: "rdwengg-az-dev2" }))
-            }, 10)
+            }, 100)
 
             socket12.once('connect', async function (args) {
                 //console.log("connect")
@@ -450,6 +448,7 @@ tags("notificationsvc", "socket")
             });
         })
         it('version_increment should happen after post', (done) => {
+            let socket13 = ioClient.connect('http://localhost:5007');
             let once = true; socket13.on('disconnect', function () { });
             let version;
             const redis = require("redis");
@@ -460,7 +459,7 @@ tags("notificationsvc", "socket")
             client.on("connect", function (error) {
                 setTimeout(() => {
                     socket13.emit("event:adduser", JSON.stringify({ userId: "rdwadmin@riversand.com_user", tenantId: "rdwengg-az-dev2" }))
-                }, 10)
+                }, 100)
             });
 
             socket13.once('connect', async function (args) {

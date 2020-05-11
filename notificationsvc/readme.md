@@ -5,7 +5,7 @@ Unit Tests-(vpn connected)
 Integration Tests-(vpn connected)
     bash run_development
     cd testintegration
-    npx mocha --timeout 1000000
+    npx mocha --timeout=0
 Concurrency Tests-(vpn connected)
     cd notificationsvc
     bash run_development
