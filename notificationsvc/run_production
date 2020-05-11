@@ -2,4 +2,4 @@
 echo "setting up env"
 source .env_production
 echo "start mdm-ui-go-notification"
-go run main.go
+./notificationsvc
