@@ -1,7 +1,6 @@
 package connection
 
 import (
-	"fmt"
 	"ui-platform-servers/notificationsvc/cmap_string_socket"
 	"ui-platform-servers/notificationsvc/utils"
 
@@ -144,8 +143,6 @@ func (b Broadcast) onmessage(channel string, data []byte) error {
 	return nil
 }
 
-var count int = 0
-
 func (b Broadcast) Join(room string, socket socketio.Conn) error {
 	sockets, ok := rooms.Get(room)
 	if !ok {
@@ -158,9 +155,6 @@ func (b Broadcast) Join(room string, socket socketio.Conn) error {
 	s.Join(room)
 	sockets.Set(socket.ID(), &_socket)
 	rooms.Set(room, sockets)
-	count++
-	fmt.Println("joins- ", count, room)
-	fmt.Println(rooms.Count())
 	return nil
 }
 
